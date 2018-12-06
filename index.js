@@ -1,4 +1,4 @@
-var logger = console; var logger = console;
+var logger = console;
 var conString = "postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29"
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
 //var conString = "postgresql://postgres:SfApps123@vox.cig7k7sblhaw.ap-south-1.rds.amazonaws.com:5432/limesurvey29";
@@ -7,7 +7,7 @@ const { Client } = require('pg');
 var client;
 
 exports.handler = async (event) => {
-	logger.log("############### Loading Lambda handler ############");
+	//logger.log("############### Loading Lambda handler ############");
 
 	client = new Client(conString);
 	await client.connect();
@@ -23,8 +23,8 @@ exports.handler = async (event) => {
 	var responseCode = "200";
 	try {
 		responseJson["statusCode"] = "400"; // assume error..overwrite later
-		logger.log("-- Event received: ");
-		logger.log(event);
+		logger.log("################## Event received: ");
+		//logger.log(event);
 
 		if (event.queryStringParameters != null) {
 			var qps = event.queryStringParameters;
@@ -45,16 +45,16 @@ exports.handler = async (event) => {
 
 		var responseBody = {};
 		var surveys = await getRawDataId();
-
+		responseBody.surveys = surveys;
 		//var suprep = await getSuppliersReport(surveyId, surveyName, supplierId, supplierName, sdate, edate);
 		//responseBody.supreport = suprep;
 		var suppliers = await getSuppliersData();
+		responseBody.suppliers = suppliers;
 
 		var stopTime = new Date().getTime();
 		var elapsedTime = (stopTime - startTime) / 1000.0;
 		responseBody.elapsed = elapsedTime;
-		responseBody.suppliers = suppliers;
-		responseBody.surveys = surveys;
+
 
 		responseJson.isBase64Encoded = false;
 		responseJson.statusCode = responseCode;
@@ -64,15 +64,16 @@ exports.handler = async (event) => {
 	catch (pex) {
 		logger.log(pex.toString());
 	}
-	logger.log(responseJson);
+	//logger.log(responseJson);
 	await client.end();
+	logger.log('---- status code: ' + responseJson.statusCode);
 	return responseJson;
 };
 
 
 const getRawDataId = async function () {
 
-	logger.log("---- getRawDataId");
+	logger.log("---- getRawDataId()");
 	var arr = [];
 	try {
 		var activeSurveys = [];
@@ -94,7 +95,7 @@ const getRawDataId = async function () {
 
 const getSuppliersData = async function () {
 
-	logger.log("----  getSuppliersData()");
+	logger.log("---- getSuppliersData()");
 	var arr = [];
 	try {
 		var query = "Select distinct supplier_id, supplier_name from da_supplier_details ";
@@ -112,7 +113,7 @@ const getSuppliersData = async function () {
 const getSuppliersReport = async function (surveyId, surveyName, supplierId, supplierName, _sdate, _edate) {
 
 	var colName = await getColumnName("AC", surveyId);
-	logger.log("----------- getSupplierReport () surveyid: " + surveyId + " supplierid " + supplierId + " sdate: " + _sdate + " edate: " + _edate);
+	logger.log("---- getSupplierReport () surveyid: " + surveyId + " supplierid " + supplierId + " sdate: " + _sdate + " edate: " + _edate);
 	var returnJSONObj = {}; // final response {}
 	var arrayOfColumns = [];
 	var title = {};
@@ -300,7 +301,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 };
 
 const getColumnName = async function (tip, surveyId) {
-	logger.log("------  getColumnName(" + tip + ", " + surveyId + ")");
+	//logger.log("----  getColumnName(" + tip + ", " + surveyId + ")");
 	var query = "", retval = "";
 	try {
 		query = "Select concat(lq.sid,'X',lq.gid,'X',lq.qid) as columnname "
@@ -309,7 +310,7 @@ const getColumnName = async function (tip, surveyId) {
 		//logger.log(query);
 		const result = await client.query(query);
 		retval = result.rows[0].columnname;
-		logger.log(retval);
+		//logger.log(retval);
 	}
 	catch (e) {
 		logger.log("Exception found " + e);
@@ -318,7 +319,7 @@ const getColumnName = async function (tip, surveyId) {
 };
 
 const getActiveSurveyIds = async function () { // returns []
-	logger.log("----------- getActiveSurveyIds()");
+	logger.log("---- getActiveSurveyIds()");
 
 	var tableName = "";
 	var s = [], listOfSurveys = [];
@@ -342,4 +343,5 @@ const getActiveSurveyIds = async function () { // returns []
 };
 
 var event = { queryStringParameters: { surveyId: 814412, supplierId: 1, supplierName: 'Mallesh', surveyName: 'Sattva', sdate: '2018-11-04', edate: '2018-11-08' } };
-exports.handler(event);
+var resultPromise = exports.handler(event);
+resultPromise.then(function (result) { console.log(result.statusCode) }, function (err) { console.log(err); })
