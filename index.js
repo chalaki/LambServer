@@ -1,8 +1,7 @@
 var logger = console;
-var conString =
-	"postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
-//"postgresql://postgres:SfApps123@vox.cig7k7sblhaw.ap-south-1.rds.amazonaws.com:5432/limesurvey29";
-//"postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29"
+var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
+//var conString ="postgresql://postgres:SfApps123@vox.cig7k7sblhaw.ap-south-1.rds.amazonaws.com:5432/limesurvey29";
+//var conString ="postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29"
 const { Client } = require('pg');
 var client;
 
