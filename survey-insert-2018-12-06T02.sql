@@ -1,0 +1,13 @@
+INSERT into aa_survey_results (user_id, ac_id, pb_id, a1, a2, user_timestamp) values (78607, 96, 199, 9, 3, '2018-12-06T01:48:26.542Z');
+INSERT into aa_survey_results (user_id, ac_id, pb_id, a1, a2, user_timestamp) values (22851, 105, 383, 12, 7, '2018-12-06T02:14:19.042Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (95007, 75, 54, 8, 10, '2018-12-06T02:14:31.280Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (90230, 103, 27, 5, 12, '2018-12-06T02:15:04.324Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (51761, 91, 386, 20, 19, '2018-12-06T02:23:18.554Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (21664, 45, 159, 15, 4, '2018-12-06T02:24:04.580Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (68413, 36, 181, 14, 6, '2018-12-06T02:27:23.470Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (30040, 38, 481, 2, 15, '2018-12-06T02:29:11.943Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (65119, 16, 335, 14, 14, '2018-12-06T02:29:35.220Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (73889, 96, 61, 5, 13, '2018-12-06T02:37:15.550Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (98403, 33, 19, 17, 5, '2018-12-06T02:37:38.021Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (75277, 35, 59, 4, 19, '2018-12-06T02:38:08.996Z');
+INSERT into aa_survey_results (userid, ac_id, pb_id, a1, a2, user_timestamp) values (36397, 46, 467, 12, 19, '2018-12-06T02:41:38.407Z');
