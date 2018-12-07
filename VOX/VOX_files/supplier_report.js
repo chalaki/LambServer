@@ -145,17 +145,17 @@ function showSupplierReport() {
 
 	if (surveyId != 00) {
 		$.ajax({
-			url: apiBaseUrl + suprepqry,
+			url: apiBaseUrl,// + suprepqry,
 			type: 'GET',
-			//			data : {
-			//              need: 'surveys-suppliers-suprep'
-			//				surveyId			: surveyId,
-			//				surveyName 			: surveyName,
-			//				startdateofreport 	: startdateofreport,
-			//				enddateofreport 	: enddateofreport,
-			//				supplierId 			: supplierId,
-			//				supplierName		: supplierName
-			//			},
+			data: {
+				need: 'suprep',
+				surveyId: surveyId,
+				surveyName: surveyName,
+				sdate: startdateofreport,
+				edate: enddateofreport,
+				supplierId: supplierId,
+				supplierName: supplierName
+			},
 			dataType: 'json',
 			success: function (result) {
 				$('#StatusDiv').html(result.supreport.status);

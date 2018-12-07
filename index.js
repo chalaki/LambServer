@@ -155,6 +155,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 
 			var row_obj = [];
 			try {
+				row_obj.push(strDate);
 
 				if (verbose) logger.log("Target_AC_Count_query: " + Target_AC_Count_query);
 				var result = await client.query(Target_AC_Count_query);
@@ -163,7 +164,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 					if (verbose) logger.log("Target_Count: " + Target_Count);
 					row_obj.push(Target_Count);
 				});
-				row_obj.push(strDate);
+
 				if (verbose) logger.log("Started_AC_Count_query: " + Started_AC_Count_query);
 				const result2 = await client.query(Started_AC_Count_query);
 
