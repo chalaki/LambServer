@@ -1,6 +1,6 @@
 var logger = console;
 var verbose = true;
-var conString = "postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29"
+var conString = "postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29";
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
 const { Client } = require('pg');
 var client;
@@ -266,10 +266,11 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 		supRepTable.COLUMNS = arrayOfColumns;
 		supRepTable.DATA = arrayOfRows;
 
-		if (verbose) logger.log("supRepTable: " + supRepTable);
+
 		returnJSONObj.Data = supRepTable;
 		returnJSONObj.Status = "Success";
 	} catch (e) { logger.log("Exception: " + e); }
+	if (verbose) logger.log("supRepTable: " + JSON.stringify(returnJSONObj));
 	return returnJSONObj;
 };
 
@@ -297,8 +298,8 @@ const getActiveSurveyIds = async function () { // returns []
 
 		const result = await client.query(getActiveSurveyIdsQuery);
 		result.rows.forEach(function myFunction(rowObj, index, array) {
-			tableName = rowObj.table_name;
-			s = tableName.split("_");
+			var tableName = rowObj.table_name;
+			var s = tableName.split("_");
 			if (s.length == 3 && /^\+?(0|[1-9]\d*)$/.test(s[[2]])) listOfSurveys.push(parseInt(s[2], 10));
 			// &&  !s[2].replaceAll("^$"," ").matches("[^\\d\\.]")) // see if it has only two _ and last word is integer
 		});
