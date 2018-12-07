@@ -1,0 +1,270 @@
+/*CSS Globals */
+
+/*
+body 
+{
+    background-color: #ffffff;
+    margin-top: 0px; 
+    font-family:Verdana;   
+    font-size:11px;
+}
+*/
+select
+{
+    font-size:11px;
+    font-family:Verdana;
+}
+
+input
+{
+    font-size:11px;
+    font-family:Verdana;
+}
+
+a.smallLinks{
+    color:#156987;
+    text-decoration:none;
+}
+
+a:hover
+{
+    color:orange;
+    text-decoration:underline;
+}
+
+#tblBody
+{
+  width:940px; 
+  
+}
+
+.aQuickLinksText
+{
+    text-decoration:none;
+    color:#484848  ;
+    font-size:11px;  
+    font-family:Trebuchet MS;
+}
+
+
+#divMenuBand{
+    background:url(../images/navigationborder.jpg);
+    height:28px;
+    border:none;
+    text-align:left;
+    padding-left:00px;
+}
+#divMenuBand table
+{
+    margin-left:50px;
+}
+#divMenuBand td{
+    padding:0px 13px;
+    height:28px;
+    cursor:pointer;
+    color:#FFF;
+    font-weight:bold;
+    font-size:11px;
+}
+
+#liactive
+{
+    background-image:url(../images/menuHover.png);
+    color:White;
+    height:28px;
+}
+
+.spnSubMenuItem{
+    line-height: 2px;
+    font-size:9px;
+    text-transform:uppercase;
+    padding:0px 5px 0px 5px;
+    color:#34819f;
+    text-decoration:none;
+}
+#divFooter
+{
+    width:940px;
+    text-align:right;
+    padding-top:10px;
+    font-family:Trebuchet MS;
+    font-size:11px;
+}
+#divFooter td
+{
+    font-size:11px;
+    background:#f0f0f0;
+}
+.buttonClass
+{
+    background:url(../images/search_cancelbutton.png);
+    border:none;
+    height:16px;
+    width:86px;
+    margin-left:3px;
+    margin-right:3px;
+    cursor:pointer;
+    font-weight:bold;
+    padding:0px 0px 3px 0px ;
+}
+
+.ButtonSearch
+{
+    border:none;
+    width:116px;
+    height:16px;
+    background-image:url(../images/showall.png); 
+    font-family:Verdana;
+    font-size:11px; 
+    color:black;
+    text-align:left;
+    padding-left:5px;
+    cursor:pointer;
+}
+
+
+.tool-tip {
+    color: #fff;
+    width: 139px;
+    z-index: 13000;
+}
+ 
+.tool-title {
+    font-weight: bold;
+    font-size: 11px;
+    margin: 0;
+    color: #9FD4FF;
+    padding: 8px 8px 4px;
+    background: url(bubble.png) top left;
+}
+ 
+.tool-text {
+    font-size: 11px;
+    padding: 4px 8px 8px;
+    background: url(bubble.png) bottom right;
+}
+ 
+.custom-tip {
+    color: #000;
+    width: 130px;
+    z-index: 13000;
+}
+ 
+.custom-title {
+    font-weight: bold;
+    font-size: 11px;
+    margin: 0;
+    color: #3E4F14;
+    padding: 8px 8px 4px;
+    background: #C3DF7D;
+    border-bottom: 1px solid #B5CF74;
+}
+ 
+.custom-text {
+    font-size: 11px;
+    padding: 4px 8px 8px;
+    background: #CFDFA7;
+}
+
+.divOfferImages
+{
+    background:url('../images/white-border.png') no-repeat 50% 0%;
+    height:99px;
+    width:110px;
+    padding:0px 15px;
+}
+.divOfferImagesHover
+{
+    background:url('../images/orange border.png') no-repeat 50% 0%;
+    height:99px;
+    width:110px;
+    padding:0px 15px;
+}
+.imgRewards
+{
+    margin-top:5px;
+    width:100px;
+    height:90px;
+}
+/*.tableSummary
+{font-size:11px;
+    text-align:left;
+    border:solid 1px #D0D0D0;
+    border-bottom:none; 
+    color:#000;
+}
+.tdSummary {	
+    background: url(../images/Summary.png);
+    height:24px;
+}
+.tdSummaryAlternate 
+{	
+    background: url(../images/SummaryAlternate.png);
+    height:24px;
+}
+.tdSummaryHeader
+{	
+    background: url(../images/fhbg.gif);
+    height:24px;
+    border-right:1px solid silver;
+    font-family:Arial;
+    font-size:12px;
+}*/
+#divTitle
+{
+    font-size:90px;
+    line-height:68px;
+    color:#8f8c8c;
+    padding:30px 0px 0px 30px;
+}
+#divSubtitle
+{
+    width:162px;
+    font-size:20px;
+    text-align:right;
+    height:25px;
+    background:#5A7681;
+    color:#EBE0E1;
+    padding-right:8px;
+}
+#divBackFade{
+	position:absolute;
+	background-color: #FFFFFF;
+	width:100%;
+	height:100%;
+	-moz-opacity:.70;
+	display:none;
+	opacity:.70;
+	filter:alpha(opacity=70);
+	z-index:2;
+	top: 0px;
+	left: 0px
+}
+
+#divMessageContentPopup
+{
+    position:absolute;
+    background-color:#3A6575;
+    padding:15px;
+    z-index:2;
+    display:none;
+    width:450px;
+    top:5px;
+	left:50%;
+	margin-top: -150px; /*set to a negative number 1/2 of your height*/
+	margin-left: -225px; /*set to a negative number 1/2 of your width*/
+}
+
+#divAlertPopup
+{
+    position:absolute;
+    background-color:#3A6575;
+    padding:15px;
+    z-index:2;
+    display:none;
+    width:450px;
+    top: 50%;
+	left:50%;
+	margin-top: -90px; /*set to a negative number 1/2 of your height*/
+	margin-left: -225px; /*set to a negative number 1/2 of your width*/
+}

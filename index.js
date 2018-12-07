@@ -14,12 +14,7 @@ exports.handler = async (event) => {
 
 	var startTime = new Date().getTime();
 	var responseJson = {};
-	var surveyId = "";
-	var surveyName = "";
-	var supplierId = "";
-	var supplierName = "";
-	var sdate = "";
-	var edate = "";
+	var surveyId = "", need = [], surveyName = "", supplierId = "", supplierName = "", sdate = "", edate = "";
 	var responseCode = "200";
 	try {
 		responseJson["statusCode"] = "400"; // assume error..overwrite later
@@ -28,25 +23,24 @@ exports.handler = async (event) => {
 
 		if (event.queryStringParameters != null) {
 			var qps = event.queryStringParameters;
+			if (qps["need"] != null) {
+				need = qps["need"].split('-');
+			}
 			if (qps["surveyId"] != null) surveyId = qps["surveyId"];
-			if (qps["surveyName"] != null)
-				surveyName = qps["surveyName"];
-			if (qps["supplierId"] != null)
-				supplierId = qps["supplierId"];
-			if (qps["supplierName"] != null)
-				supplierName = qps["supplierName"];
-			if (qps["sdate"] != null)
-				sdate = qps["sdate"];
-			if (qps["edate"] != null)
-				edate = qps["edate"];
+			if (qps["surveyName"] != null) surveyName = qps["surveyName"];
+			if (qps["supplierId"] != null) supplierId = qps["supplierId"];
+			if (qps["supplierName"] != null) supplierName = qps["supplierName"];
+			if (qps["sdate"] != null) sdate = qps["sdate"];
+			if (qps["edate"] != null) edate = qps["edate"];
 		}
 		if (verbose) logger.log("  Received event: surveyId,  surveyName, supplierId, supplierName, sdate, edate: " + surveyId
 			+ ", " + surveyName + ", " + supplierId + ", " + supplierName + ", " + sdate + ", " + edate);
 
 		var responseBody = {};
-		responseBody.surveys = await getRawDataId();
-		//responseBody.supreport =  await getSuppliersReport(surveyId, surveyName, supplierId, supplierName, sdate, edate);;
-		//responseBody.suppliers = await getSuppliersData();
+
+		if (need.includes('surveys')) responseBody.surveys = await getRawDataId();
+		if (need.includes('suprep')) responseBody.supreport = await getSuppliersReport(surveyId, surveyName, supplierId, supplierName, sdate, edate);;
+		if (need.includes('suppliers')) responseBody.suppliers = await getSuppliersData();
 
 		var stopTime = new Date().getTime();
 		var elapsedTime = (stopTime - startTime) / 1000.0;
@@ -278,6 +272,8 @@ const getActiveSurveyIds = async function () { // returns []
 	return listOfSurveys;
 };
 
-var event = { queryStringParameters: { surveyId: 814412, supplierId: 1, supplierName: 'Mallesh', surveyName: 'Sattva', sdate: '2018-11-04', edate: '2018-11-08' } };
+verbose = true;
+var need = 'surveys-suppliers-suprep'; //'surveys-suppliers-suprep'
+var event = { queryStringParameters: { need: need, surveyId: 814412, supplierId: 1, supplierName: 'Mallesh', surveyName: 'Sattva', sdate: '2018-11-04', edate: '2018-11-08' } };
 var resultPromise = exports.handler(event);
 resultPromise.then(function (result) { console.log("################# exit: " + result.statusCode) }, function (err) { console.log(err); })

@@ -1,0 +1,35 @@
+table.dataTable thead th, table.dataTable thead td {
+    /* padding: 0px 0px; */
+    padding:3px 18px;
+    border-bottom: 0px solid #111;
+}
+table.dataTable thead .sorting_asc {
+     background-image:none;
+}
+table.dataTable thead .sorting {
+    background-image: none;
+}
+table.dataTable tr.even {  background-color: rgb(236, 236, 236);
+    url(./images/grid_alternate.png) repeat-x; }
+    
+  table.dataTable td { 
+    border-left: 1px solid rgb(210, 210, 210);
+    border-bottom: 1px solid rgb(210, 210, 210);
+    height: 15px;
+    padding: 3px;
+  }
+tr.even:hover td,
+#mtTable tr.even:hover td,
+#mtTable tr.even:hover td.sorting_1 {  background-color: rgb(132, 223, 193);}
+tr.odd:hover td,
+#mtTable tr.odd:hover td,
+#mtTable tr.odd:hover td.sorting_1 {  background-color: rgb(132, 223, 193);}
+th {
+    text-align: center;
+}
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+    border-bottom: none;
+}
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 2px 10px;
+}

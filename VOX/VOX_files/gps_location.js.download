@@ -1,0 +1,161 @@
+$(document).ready(function() {
+   //alert("77666")
+
+   gettimingsLatitudeTbl("ALL"); 
+   // gettimingsLatitudeId("ALL");
+	 
+    /*********************************** 
+	 * TIMINGS & LATITUDES table data for survey 
+	 * *************************************/
+  
+  $('#timingslatitudeId').change(function(){
+	  var surveyls_title = $('#timingslatitudeId option:selected').text();
+	  gettimingsLatitudeTbl(surveyls_title);
+  });
+
+  
+/********************************TIMINGS & LATITUDES*****************************************************/		
+			
+
+	/*********************************** 
+	 * TIMINGS & LATITUDES  table data 
+	 * *************************************/
+
+			   var table = $("#timingsLatitudeTbl").DataTable({   	
+				   "paging":  true,
+					"lengthMenu": [[10,20, 30, -1], [10,20, 30, "All"]],
+					"processing": false,
+				    "ordering": false,
+				    "info":  true,
+				    "searching":true,
+				    "bFilter": false,
+				    "bAutoWidth": false,
+			        "bDestroy":false,
+			         "columnDefs":[
+					     {"targets":0,"data":"surveyls_title"},
+					     {"targets":1,"data":"user_id"},
+					     {"targets":2,"data":"question"}, 
+					     {"targets":3,"data":"start_time"},	
+					     {"targets":4,"data":"end_time"},	
+					     {"targets":5,"data":"start_loc"},
+					     {"targets":6,"data":"end_loc"},
+					 	{"targets": 7, "data": null, "defaultContent": '<button type="button"  action="viewbutton" class="btn btn-default btn-sm btn-preview"><span class="glyphicon glyphicon-eye-open"></span></button>'}
+					   
+					     
+					      ],dom: 'frtipB',
+							buttons: [	           
+							           {
+							               extend: 'excel',
+							               text: 'EXCEL DOWNLOAD',
+							               title:'TimingsLatitudeReport',
+							               className: 'btn btn-info btn-sm col-sm-2 excelbtn',
+							               exportOptions: {
+							                   modifier: {
+							                       page: 'all'
+							                   },
+							                   stripHtml:true
+							               }
+							           },
+							         ]
+				     
+				});
+			   
+			   /*******************************************************************
+				    *VIEW BUTTON CLICK
+				 *******************************************************************/
+			   var location_st;
+			   var location_end;
+			   $('#timingsLatitudeTbl tbody').on( 'click', 'button[action=viewbutton]', function () {
+				  
+				   var data = table.row( $(this).parents('tr') ).data();
+				   		location_st = data.location_st;
+					  location_end = data.location_end;
+					 
+				   $('#locationModal').modal("show");
+				   
+				  
+						
+						
+						
+			
+					
+					
+				
+			});
+			 
+			   $("#locationModal").on('shown.bs.modal', function(){
+				   var map = new google.maps.Map(document.getElementById('map'), {
+				          zoom: 4,
+				          center: {lat: 20.5937, lng: 78.9629}  // Australia.
+				        });
+					
+					 var directionsService = new google.maps.DirectionsService;
+				        var directionsDisplay = new google.maps.DirectionsRenderer({
+				          draggable: true,
+				          map: map,
+				          panel: document.getElementById('map')
+				        });
+				        
+				       alert
+					        displayRoute(location_st,location_end, directionsService,
+					            directionsDisplay);
+					        function displayRoute(origin, destination, service, display) {
+						        service.route({
+						          origin: origin,
+						          destination: destination,
+						          waypoints: [{location: location_st}, {location: location_end}],
+						          travelMode: 'DRIVING',
+						          avoidTolls: true
+						        }, function(response, status) {
+						          if (status === 'OK') {
+						            display.setDirections(response);
+						          } else {
+						            //////alert('Could not display directions due to: ' + status);
+						          }
+						        });
+						      }
+			    });
+			
+			   
+})  
+
+
+function gettimingsLatitudeTbl(surveyls_title){
+	//alert("timingsLatitude")
+	$.ajax({
+		"url": "./dashboard/gettimingsLatitudeTbl.do",
+		"type": 'POST',	
+		data:{surveyls_title:surveyls_title},
+		dataType:'JSON',
+		success:function(result) {
+			//alert("67777888")
+			 var table = $("#timingsLatitudeTbl").DataTable();
+			 table.clear().draw();
+			 table.rows.add(result.data).draw();
+			
+		} 
+	});
+} 
+
+
+function gettimingsLatitudeId() {
+	//alert("77777777777")
+	$.ajax({
+
+		url : './dashboard/gettimingsLatitudeId.do',
+		type : 'POST',
+		dataType : 'json',
+		success : function(result) {
+			var options = "<option value='ALL'>ALL</option>";
+			$.each(result.data, function(i, data) {
+				options = options
+						+ "<option value="
+						+ data.surveyls_title + ">"
+						+ data.surveyls_title
+						+ "</option>";
+			});
+			$('#timingslatitudeId').html();
+			$('#timingslatitudeId').append(options);
+		}
+	});
+}
