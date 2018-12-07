@@ -1,7 +1,8 @@
 var logger = console;
-var verbose = true;
-var conString = "postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29";
+var verbose = false;
+//var conString = "postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29";
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
+var conString = "postgresql://postgres:SfApps123@vmicro.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/ls29";
 const { Client } = require('pg');
 var client;
 
@@ -43,16 +44,14 @@ exports.handler = async (event) => {
 			+ ", " + surveyName + ", " + supplierId + ", " + supplierName + ", " + sdate + ", " + edate);
 
 		var responseBody = {};
-		var surveys = await getRawDataId();
-		responseBody.surveys = surveys;
-		var suprep = await getSuppliersReport(surveyId, surveyName, supplierId, supplierName, sdate, edate);
-		responseBody.supreport = suprep;
-		var suppliers = await getSuppliersData();
-		responseBody.suppliers = suppliers;
+		responseBody.surveys = await getRawDataId();
+		//responseBody.supreport =  await getSuppliersReport(surveyId, surveyName, supplierId, supplierName, sdate, edate);;
+		//responseBody.suppliers = await getSuppliersData();
 
 		var stopTime = new Date().getTime();
 		var elapsedTime = (stopTime - startTime) / 1000.0;
 		responseBody.elapsed = elapsedTime;
+		logger.log('elapsed: ' + elapsedTime);
 
 		responseJson.isBase64Encoded = false;
 		responseJson.statusCode = responseCode;
@@ -61,7 +60,7 @@ exports.handler = async (event) => {
 	}
 	catch (pex) { logger.log(pex.toString()); }
 	await client.end();
-	logger.log('status code: ' + responseJson.statusCode);
+	logger.log('############### status code: ' + responseJson.statusCode);
 	return responseJson;
 };
 
@@ -82,7 +81,7 @@ const getRawDataId = async function () {
 
 const getSuppliersData = async function () {
 
-	logger.log("getSuppliersData():");
+	if (verbose) logger.log("getSuppliersData():");
 	var arr = [];
 	try {
 		var suppliersQuery = "Select distinct supplier_id, supplier_name from da_supplier_details ";
@@ -94,10 +93,9 @@ const getSuppliersData = async function () {
 	return arr;
 };
 
-
 const getSuppliersReport = async function (surveyId, surveyName, supplierId, supplierName, _sdate, _edate) {
 
-	logger.log("getSupplierReport(): surveyid: " + surveyId + " supplierid " + supplierId + " sdate: " + _sdate + " edate: " + _edate);
+	if (verbose) logger.log("getSupplierReport(): surveyid: " + surveyId + " supplierid " + supplierId + " sdate: " + _sdate + " edate: " + _edate);
 	var colName = await getColumnName("AC", surveyId);
 	var returnJSONObj = {}; // final response {}
 	var arrayOfColumns = [];
@@ -168,7 +166,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 				var result = await client.query(Target_AC_Count_query);
 				result.rows.forEach(function (rs2) {
 					Target_Count = rs2.count;
-					logger.log("Target_Count: " + Target_Count);
+					if (verbose) logger.log("Target_Count: " + Target_Count);
 					row_obj.push(Target_Count);
 				});
 				row_obj.push(strDate);
@@ -177,7 +175,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 
 				result2.rows.forEach(function (rs1) {
 					Started_Count = rs1.count;
-					logger.log("Started_Count: " + Started_Count);
+					if (verbose) logger.log("Started_Count: " + Started_Count);
 					row_obj.push(Started_Count);
 				});
 
@@ -195,20 +193,20 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 				var diff = parseInt(Achieved_Count, 10) - parseInt(_Achieved_Count, 10);
 				Achieved_Count = _Achieved_Count;
 
-				logger.log("Achieved_Count, TotalQuota: " + Achieved_Count + "   " + TotalQuota);
+				if (verbose) logger.log("Achieved_Count, TotalQuota: " + Achieved_Count + "   " + TotalQuota);
 				row_obj.push(Achieved_Count);
 
 				Pending_Count = (parseInt(Target_Count, 10) - parseInt(Achieved_Count, 10)).toString();
-				logger.log("Pending_Count: " + Pending_Count);
+				if (verbose) logger.log("Pending_Count: " + Pending_Count);
 				row_obj.push(Pending_Count);
 
-				logger.log("ActiveHybridUsersCountQuery: " + ActiveHybridUsersCountQuery);
+				if (verbose) logger.log("ActiveHybridUsersCountQuery: " + ActiveHybridUsersCountQuery);
 
 				var _Active_HUser_Count = "0"; // current value
 				const result4 = await client.query(ActiveHybridUsersCountQuery);
 				result4.rows.forEach(function (rs4) { _Active_HUser_Count = rs4.count; });
 
-				logger.log("Active_HUser_Count: " + _Active_HUser_Count);
+				if (verbose) logger.log("Active_HUser_Count: " + _Active_HUser_Count);
 				row_obj.push(_Active_HUser_Count);
 				diff = parseInt(_Active_HUser_Count, 10) - parseInt(Active_HUser_Count, 10);
 				Active_HUser_Count = _Active_HUser_Count;
@@ -221,7 +219,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 				const result5 = await client.query(TotalSurveysDoneQuery);
 				result5.rows.forEach(function (rs5) { _Total_Surveys_Done = rs5.count; });
 
-				logger.log("Total_Surveys_Done: " + _Total_Surveys_Done);
+				if (verbose) logger.log("Total_Surveys_Done: " + _Total_Surveys_Done);
 				row_obj.push(TotalQuota);
 				row_obj.push(_Total_Surveys_Done);
 				diff = parseInt(_Total_Surveys_Done, 10) - parseInt(Total_Surveys_Done, 10);
@@ -282,4 +280,4 @@ const getActiveSurveyIds = async function () { // returns []
 
 var event = { queryStringParameters: { surveyId: 814412, supplierId: 1, supplierName: 'Mallesh', surveyName: 'Sattva', sdate: '2018-11-04', edate: '2018-11-08' } };
 var resultPromise = exports.handler(event);
-resultPromise.then(function (result) { console.log(result.statusCode) }, function (err) { console.log(err); })
+resultPromise.then(function (result) { console.log("################# exit: " + result.statusCode) }, function (err) { console.log(err); })
