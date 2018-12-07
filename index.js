@@ -1,13 +1,12 @@
 var logger = console;
+var verbose = true;
 var conString = "postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29"
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
-//var conString = "postgresql://postgres:SfApps123@vox.cig7k7sblhaw.ap-south-1.rds.amazonaws.com:5432/limesurvey29";
-
 const { Client } = require('pg');
 var client;
 
 exports.handler = async (event) => {
-	//logger.log("############### Loading Lambda handler ############");
+	if (verbose) logger.log("############### Loading Lambda handler ############");
 
 	client = new Client(conString);
 	await client.connect();
@@ -24,7 +23,7 @@ exports.handler = async (event) => {
 	try {
 		responseJson["statusCode"] = "400"; // assume error..overwrite later
 		logger.log("################## Event received: ");
-		//logger.log(event);
+		if (verbose) logger.log(event);
 
 		if (event.queryStringParameters != null) {
 			var qps = event.queryStringParameters;
@@ -40,14 +39,14 @@ exports.handler = async (event) => {
 			if (qps["edate"] != null)
 				edate = qps["edate"];
 		}
-		// logger.log("  Received event: surveyId,  surveyName, supplierId, supplierName, sdate, edate: " + surveyId
-		// 	+ ", " + surveyName + ", " + supplierId + ", " + supplierName + ", " + sdate + ", " + edate);
+		if (verbose) logger.log("  Received event: surveyId,  surveyName, supplierId, supplierName, sdate, edate: " + surveyId
+			+ ", " + surveyName + ", " + supplierId + ", " + supplierName + ", " + sdate + ", " + edate);
 
 		var responseBody = {};
 		var surveys = await getRawDataId();
 		responseBody.surveys = surveys;
-		//var suprep = await getSuppliersReport(surveyId, surveyName, supplierId, supplierName, sdate, edate);
-		//responseBody.supreport = suprep;
+		var suprep = await getSuppliersReport(surveyId, surveyName, supplierId, supplierName, sdate, edate);
+		responseBody.supreport = suprep;
 		var suppliers = await getSuppliersData();
 		responseBody.suppliers = suppliers;
 
@@ -55,65 +54,51 @@ exports.handler = async (event) => {
 		var elapsedTime = (stopTime - startTime) / 1000.0;
 		responseBody.elapsed = elapsedTime;
 
-
 		responseJson.isBase64Encoded = false;
 		responseJson.statusCode = responseCode;
 		responseJson.headers = { "x-custom-header": "my custom header value" };
 		responseJson.body = JSON.stringify(responseBody);
 	}
-	catch (pex) {
-		logger.log(pex.toString());
-	}
-	//logger.log(responseJson);
+	catch (pex) { logger.log(pex.toString()); }
 	await client.end();
-	logger.log('---- status code: ' + responseJson.statusCode);
+	logger.log('status code: ' + responseJson.statusCode);
 	return responseJson;
 };
 
-
 const getRawDataId = async function () {
 
-	logger.log("---- getRawDataId()");
 	var arr = [];
 	try {
 		var activeSurveys = [];
 		activeSurveys = await getActiveSurveyIds();
-		//logger.log('---- getRawDataId: getActiveSurveyIds() returned: ' + getActiveSurveyIds.length);
 		var query = "Select surveyls_survey_id, surveyls_title from lime_surveys_languagesettings ";
 		const res = await client.query(query);
-		res.rows.forEach(function myFunction(rowObj, index, array) {
-			//logger.log(rowObj);
-			if (rowObj.surveyls_survey_id != '' && activeSurveys.includes(rowObj.surveyls_survey_id)) arr.push(rowObj);
-		});
-		//logger.log(arr);
+		res.rows.forEach(function myFunction(rowObj, index, array) { if (rowObj.surveyls_survey_id != '' && activeSurveys.includes(rowObj.surveyls_survey_id)) arr.push(rowObj); });
+		if (verbose) logger.log("getRawDataId: " + JSON.stringify(arr));
 	}
-	catch (e) {
-		logger.log(e);
-	}
+	catch (e) { logger.log("getRawDataId: " + JSON.stringify(e)); }
 	return arr;
 };
 
 const getSuppliersData = async function () {
 
-	logger.log("---- getSuppliersData()");
+	logger.log("getSuppliersData():");
 	var arr = [];
 	try {
-		var query = "Select distinct supplier_id, supplier_name from da_supplier_details ";
-		//logger.log("Query :" + query);
-		const result = await client.query(query);
+		var suppliersQuery = "Select distinct supplier_id, supplier_name from da_supplier_details ";
+		if (verbose) logger.log("suppliersQuery:" + suppliersQuery);
+		const result = await client.query(suppliersQuery);
 		result.rows.forEach(function (rowObj) { arr.push(rowObj); });
 	}
-	catch (e) {
-		logger.log(e);
-	}
+	catch (e) { logger.log(e); }
 	return arr;
 };
 
 
 const getSuppliersReport = async function (surveyId, surveyName, supplierId, supplierName, _sdate, _edate) {
 
+	logger.log("getSupplierReport(): surveyid: " + surveyId + " supplierid " + supplierId + " sdate: " + _sdate + " edate: " + _edate);
 	var colName = await getColumnName("AC", surveyId);
-	logger.log("---- getSupplierReport () surveyid: " + surveyId + " supplierid " + supplierId + " sdate: " + _sdate + " edate: " + _edate);
 	var returnJSONObj = {}; // final response {}
 	var arrayOfColumns = [];
 	var title = {};
@@ -122,15 +107,13 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 	var condition2 = "";
 	try {
 		returnJSONObj.Status = "Failure"; // assume failure later overwrite
-
 		arrayOfColumns = [];
 		title = {};
 		arrayOfRows = [];
 		supRepTable = {};
 		var sdate = new Date(_sdate); //new SimpleDateFormat("yyyy-MM-dd").parse(_sdate);
 		var edate = new Date(_edate);//new SimpleDateFormat("yyyy-MM-dd").parse(_edate);
-		var Started_Count = "0", Achieved_Count = "0", Target_Count = "0", Pending_Count = "0",
-			Active_HUser_Count = "0", Total_Surveys_Done = "0";
+		var Started_Count = "0", Achieved_Count = "0", Target_Count = "0", Pending_Count = "0", Active_HUser_Count = "0", Total_Surveys_Done = "0";
 
 		for (var dt = sdate; dt <= edate;) {
 
@@ -181,24 +164,24 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 			var row_obj = [];
 			try {
 
-				//logger.log("Target_AC_Count_query :" + Target_AC_Count_query);
+				if (verbose) logger.log("Target_AC_Count_query: " + Target_AC_Count_query);
 				var result = await client.query(Target_AC_Count_query);
 				result.rows.forEach(function (rs2) {
 					Target_Count = rs2.count;
-					logger.log("Target_Count ........... " + Target_Count);
+					logger.log("Target_Count: " + Target_Count);
 					row_obj.push(Target_Count);
 				});
 				row_obj.push(strDate);
-				//logger.log("Started_AC_Count_query :" + Started_AC_Count_query);
+				if (verbose) logger.log("Started_AC_Count_query: " + Started_AC_Count_query);
 				const result2 = await client.query(Started_AC_Count_query);
 
 				result2.rows.forEach(function (rs1) {
 					Started_Count = rs1.count;
-					logger.log("Started_Count ........... " + Started_Count);
+					logger.log("Started_Count: " + Started_Count);
 					row_obj.push(Started_Count);
 				});
 
-				//logger.log("Achieved_AC_Count_query :" + Achieved_AC_Count_query);
+				if (verbose) logger.log("Achieved_AC_Count_query: " + Achieved_AC_Count_query);
 				var _Achieved_Count = "0";
 				var TotalQuota = "0";
 				const result3 = await client.query(Achieved_AC_Count_query);
@@ -214,26 +197,26 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 				var diff = parseInt(Achieved_Count, 10) - parseInt(_Achieved_Count, 10);
 				Achieved_Count = _Achieved_Count;
 
-				logger.log("Achieved_Count, TotalQuota ........... " + Achieved_Count + "   " + TotalQuota);
+				logger.log("Achieved_Count, TotalQuota: " + Achieved_Count + "   " + TotalQuota);
 				row_obj.push(Achieved_Count);
 
 				Pending_Count = (parseInt(Target_Count, 10) - parseInt(Achieved_Count, 10)).toString();
-				logger.log("Pending_Count ........... " + Pending_Count);
+				logger.log("Pending_Count: " + Pending_Count);
 				row_obj.push(Pending_Count);
 
-				logger.log("ActiveHybridUsersCountQuery :" + ActiveHybridUsersCountQuery);
+				logger.log("ActiveHybridUsersCountQuery: " + ActiveHybridUsersCountQuery);
 
 				var _Active_HUser_Count = "0"; // current value
 				const result4 = await client.query(ActiveHybridUsersCountQuery);
 				result4.rows.forEach(function (rs4) { _Active_HUser_Count = rs4.count; });
 
-				logger.log("Active_HUser_Count ........... " + _Active_HUser_Count);
+				logger.log("Active_HUser_Count: " + _Active_HUser_Count);
 				row_obj.push(_Active_HUser_Count);
 				diff = parseInt(_Active_HUser_Count, 10) - parseInt(Active_HUser_Count, 10);
 				Active_HUser_Count = _Active_HUser_Count;
 				if (dt == sdate) row_obj.push("N/A");
 				else row_obj.push(diff);
-				//logger.log("TotalSurveysDoneQuery :" + TotalSurveysDoneQuery);
+				if (verbose) logger.log("TotalSurveysDoneQuery: " + TotalSurveysDoneQuery);
 
 				var _Total_Surveys_Done = "0"; // current value
 
@@ -242,24 +225,16 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 					_Total_Surveys_Done = rs5.count;
 				});
 
-				logger.log("Total_Surveys_Done ........... " + _Total_Surveys_Done);
+				logger.log("Total_Surveys_Done: " + _Total_Surveys_Done);
 				row_obj.push(TotalQuota);
 				row_obj.push(_Total_Surveys_Done);
 				diff = parseInt(_Total_Surveys_Done, 10) - parseInt(Total_Surveys_Done, 10);
 				Total_Surveys_Done = _Total_Surveys_Done;
-				if (dt == sdate)
-					row_obj.push("N/A");
-				else
-					row_obj.push(diff);
-
-				//logger.log("resultset ........... " + row_obj);
+				if (dt == sdate) row_obj.push("N/A");
+				else row_obj.push(diff);
 				arrayOfRows.push(row_obj);
 			}
-			catch (e) {
-				logger.log(e);
-			}
-			finally {
-			}
+			catch (e) { logger.log(e); }
 			dt.setDate(dt.getDate() + 1);
 		} // for loop
 
@@ -291,54 +266,45 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 		supRepTable.COLUMNS = arrayOfColumns;
 		supRepTable.DATA = arrayOfRows;
 
-		//logger.log("supRepTable is " + supRepTable);
+		if (verbose) logger.log("supRepTable: " + supRepTable);
 		returnJSONObj.Data = supRepTable;
 		returnJSONObj.Status = "Success";
-	} catch (e) {
-		logger.log("Exception found " + e);
-	}
+	} catch (e) { logger.log("Exception: " + e); }
 	return returnJSONObj;
 };
 
 const getColumnName = async function (tip, surveyId) {
-	//logger.log("----  getColumnName(" + tip + ", " + surveyId + ")");
-	var query = "", retval = "";
+	if (!verbose) logger.log("getColumnName(" + tip + ", " + surveyId + ")");
+	var getColumnNameQuery = "", retval = "";
 	try {
-		query = "Select concat(lq.sid,'X',lq.gid,'X',lq.qid) as columnname "
+		getColumnNameQuery = "Select concat(lq.sid,'X',lq.gid,'X',lq.qid) as columnname "
 			+ "from lime_questions lq Inner join lime_question_attributes lqa on lqa.qid=lq.qid and lqa.value='"
 			+ tip + "' where lq.sid='" + surveyId + "'";
-		//logger.log(query);
-		const result = await client.query(query);
+		if (verbose) logger.log("getColumnNameQuery: " + getColumnNameQuery);
+		const result = await client.query(getColumnNameQuery);
 		retval = result.rows[0].columnname;
-		//logger.log(retval);
+		if (verbose) logger.log("getColumnName(): " + retval);
 	}
-	catch (e) {
-		logger.log("Exception found " + e);
-	}
+	catch (e) { logger.log("getColumnName Exception: " + JSON.stringify(e)); }
 	return retval;
 };
 
 const getActiveSurveyIds = async function () { // returns []
-	logger.log("---- getActiveSurveyIds()");
-
-	var tableName = "";
-	var s = [], listOfSurveys = [];
+	var listOfSurveys = [];
 	try {
-		var query = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name like 'lime_survey_%'";
-		//logger.log(query);
+		var getActiveSurveyIdsQuery = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name like 'lime_survey_%'";
+		if (verbose) logger.log("getActiveSurveyIdsQuery: " + getActiveSurveyIdsQuery);
 
-		const result = await client.query(query);
+		const result = await client.query(getActiveSurveyIdsQuery);
 		result.rows.forEach(function myFunction(rowObj, index, array) {
 			tableName = rowObj.table_name;
 			s = tableName.split("_");
-			if (s.length == 3) {// &&  !s[2].replaceAll("^$"," ").matches("[^\\d\\.]")) // see if it has only two _ and last word is integer
-				listOfSurveys.push(parseInt(s[2], 10));
-			}
+			if (s.length == 3 && /^\+?(0|[1-9]\d*)$/.test(s[[2]])) listOfSurveys.push(parseInt(s[2], 10));
+			// &&  !s[2].replaceAll("^$"," ").matches("[^\\d\\.]")) // see if it has only two _ and last word is integer
 		});
 	}
-	catch (e) {
-		logger.log("Exception found " + e);
-	}
+	catch (e) { logger.log("getActiveSurveyIds Exception: " + JSON.stringify(e)); }
+	{ logger.log("getActiveSurveyIds: " + JSON.stringify(listOfSurveys)); }
 	return listOfSurveys;
 };
 
