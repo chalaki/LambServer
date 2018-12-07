@@ -190,9 +190,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 					_Achieved_Count = rs3.achieved_acs;
 					TotalQuota = rs3.totalquota;
 				}
-				else {
-					_Achieved_Count = "0";
-				}
+				else _Achieved_Count = "0";
 
 				var diff = parseInt(Achieved_Count, 10) - parseInt(_Achieved_Count, 10);
 				Achieved_Count = _Achieved_Count;
@@ -221,9 +219,7 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 				var _Total_Surveys_Done = "0"; // current value
 
 				const result5 = await client.query(TotalSurveysDoneQuery);
-				result5.rows.forEach(function (rs5) {
-					_Total_Surveys_Done = rs5.count;
-				});
+				result5.rows.forEach(function (rs5) { _Total_Surveys_Done = rs5.count; });
 
 				logger.log("Total_Surveys_Done: " + _Total_Surveys_Done);
 				row_obj.push(TotalQuota);
@@ -238,35 +234,10 @@ const getSuppliersReport = async function (surveyId, surveyName, supplierId, sup
 			dt.setDate(dt.getDate() + 1);
 		} // for loop
 
-		title = {};
-		var timeStamp = (new Date()).toDateString();
-		title.title = supplierName + " (" + surveyName + ") " + _sdate + " to " + _edate + " at: " + timeStamp;
-		arrayOfColumns.push(title);
-		var col1 = {}, col2 = {}, col3 = {}, col4 = {}, col5 = {}, col6 = {}, col7 = {}, col8 = {}, col9 = {};
-		col1.title = "Target AC Count";
-		col2.title = "Started AC Count";
-		col3.title = "Achieved AC Count";
-		col4.title = "Pending AC Count";
-		col5.title = "Active Hybrid Users";
-		col6.title = "Daily New Users";
-		col7.title = "Tot. Quota";
-		col8.title = "Tot. Surveys Done";
-		col9.title = "New Surveys";
-
-		arrayOfColumns.push(col1);
-		arrayOfColumns.push(col2);
-		arrayOfColumns.push(col3);
-		arrayOfColumns.push(col4);
-		arrayOfColumns.push(col5);
-		arrayOfColumns.push(col6);
-		arrayOfColumns.push(col7);
-		arrayOfColumns.push(col8);
-		arrayOfColumns.push(col9);
-		supRepTable.TITLE1 = supplierName + " (" + surveyName + ") From " + _sdate + " to " + _edate + " Report time: " + timeStamp;
+		[supplierName + " (" + surveyName + ") " + _sdate + " to " + _edate + " at: " + (new Date()).toDateString(), "Target AC Count", "Started AC Count", "Achieved AC Count", "Pending AC Count", "Active Hybrid Users", "Daily New Users",
+			"Tot. Quota", "Tot. Surveys Done", "New Surveys"].forEach(x => arrayOfColumns.push({ title: x }));
 		supRepTable.COLUMNS = arrayOfColumns;
 		supRepTable.DATA = arrayOfRows;
-
-
 		returnJSONObj.Data = supRepTable;
 		returnJSONObj.Status = "Success";
 	} catch (e) { logger.log("Exception: " + e); }
