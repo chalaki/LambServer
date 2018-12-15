@@ -1,29 +1,21 @@
 var supplierReportTable;
-var saab1;
 var apiBaseUrl = 'https://cors.io/?https://sx4a1t4gqb.execute-api.us-west-2.amazonaws.com/prod?'
-var suprepqry = 'need=suprep&surveyId=814412&surveyName=Sattva&sdate=2018-11-01&edate=2018-11-01&supplierId=1&supplierName=Mallesh';
-
-// written by: Raj Sundarigari
 $(document).ready(function () {
 
 	getRawDataId();
 	getSuppliersData();
-
 	$('#downloadSupplierReport').click(function () {
 		if ($.fn.dataTable.isDataTable('#supplierReportTable')) supplierReportTable.destroy();
 		showSupplierReport();
 	});
-
 	$('#downloadElectionSupplierReport').click(function () {
 		if ($.fn.dataTable.isDataTable('#electionReportTable')) supplierReportTable.destroy();
 		showElectionReport();
 	});
-
 	$('#downloadSMSReport').click(function () {
 		if ($.fn.dataTable.isDataTable('#electionReportTable')) supplierReportTable.destroy();
 		showSMSReport();
 	});
-
 	//	$('#surveys').change(function() {
 	//		// alert("Hello");
 	//		var surveyId = $('#surveys').val();
@@ -72,14 +64,13 @@ $(document).ready(function () {
 		excluded: false,
 		altField: "#datep"
 	});
-
 });
-
 function getRawDataId() {
 	$.ajax({
-		url: apiBaseUrl + 'need=surveys',
+		url: apiBaseUrl,
 		type: 'GET',
 		dataType: 'json',
+		data: { need: 'surveys' },
 		success: function (result) {
 			// console.log(result.data);
 			var options = "<option value='selectOption'>select Any Survey</option>";
@@ -105,13 +96,13 @@ function getRawDataId() {
 		error: function (XMLHttpRequest, textStatus, errorThrown) { alert("Status: " + textStatus); alert("Error: " + errorThrown); }
 	});
 }
-
 // get a list of suppliers
 function getSuppliersData() {
 	$.ajax({
-		url: apiBaseUrl + 'need=suppliers',
+		url: apiBaseUrl,
 		type: 'GET',
 		dataType: 'json',
+		data: { 'need': 'suppliers' },
 		success: function (result) {
 			// console.log(result.data);
 			var options = "<option value='selectOption'>select Any Supplier</option>";
@@ -133,7 +124,6 @@ function getSuppliersData() {
 		error: function (XMLHttpRequest, textStatus, errorThrown) { alert("Status: " + textStatus); alert("Error: " + errorThrown); }
 	});
 }
-
 // populate supplierReportTable datatable
 function showSupplierReport() {
 	var surveyName = $('#surveys  option:selected').text();
@@ -166,9 +156,6 @@ function showSupplierReport() {
 				}
 				$('#supplierReportTable').show();
 				data = result.supreport.Data;
-				//$('#supplierReportTable tbody > tr').remove();
-				//$('#supplierReportTable thead > tr').remove();
-
 				supplierReportTable = $('#supplierReportTable').DataTable({
 					"data": data.DATA,
 					"columns": data.COLUMNS,
@@ -181,18 +168,14 @@ function showSupplierReport() {
 						title: 'Supplier_Report_' + surveyId,
 						className: 'btn btn-info btn-sm col-sm-2 excelbtn',
 						exportOptions: {
-							modifier: {
-								page: 'all'
-							},
+							modifier: { page: 'all' },
 							stripHtml: true
 						}
 					},]
 				});
-				//$('#colmain').html(data[0].TITLE1);
 			},
 			error: function (XMLHttpRequest, textStatus, errorThrown) { alert("Status: " + textStatus); alert("Error: " + errorThrown); }
 		});
 	} else { alert("Please select the survey."); }
 }
-
 function SortByName(x, y) { return ((x.text == y.text) ? 0 : ((x.text > y.text) ? 1 : -1)); }
