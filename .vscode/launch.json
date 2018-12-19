@@ -6,7 +6,22 @@
     "nextToken": #if($context.arguments.nextToken) "$context.arguments.nextToken" #else null #end
 }
 
+
 {
     "items": $util.toJson($context.result.items),
     "nextToken": $util.toJson($context.result.nextToken)
 }
+
+
+#**
+The value of 'payload' after the template has been evaluated
+will be passed as the event to AWS Lambda.
+*#
+{
+  "version" : "2017-02-28",
+  "operation": "Invoke",
+  "payload":  {
+      "queryStringParameters": $util.toJson($context.arguments)
+      }
+}
+$util.toJson($util.parseJson($context.result.body).putsurvey)

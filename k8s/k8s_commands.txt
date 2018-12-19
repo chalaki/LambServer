@@ -1,0 +1,36 @@
+docker common commands
+------------------------
+docker build -t sundarigari/node .
+
+docker run -d --name runr -t -p 0.0.0.0:32800:8081/tcp  -v /var/run/docker.sock:/var/run/docker.sock sundarigari/node 
+docker run -d --name runr -t -p 0.0.0.0:32800:8081/tcp  sundarigari/nodeimage:version3
+docker cp  c:/temp/index.js runr:/
+docker exec -d runr bash server.sh
+docker stop runr
+docker rm runr
+docker-machine env
+docker save -o nodeimage.tar sundarigari/nodeimage:version3
+docker load -i nodeimage.tar
+docker commit 
+
+Kubernites/minikube/common cmds
+------------------------------
+minikube dashboard
+minikube docker-env # follow instruction to run last line to have docker client point to minikube docker host
+kubectl get pods
+kubectl get events
+kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node
+kubectl create deployment node --image=marketplace.gcr.io/google/nodejs:latest
+minikube service node
+
+postgres install
+----------------
+kubectl delete deployment postgres
+kubectl create deployment postgres --image=postgres
+kubectl delete service postgres
+kubectl expose deployment postgres --type=LoadBalancer --port=5432
+psql -h 192.168.99.100 -p 30360 -d ls29 -U postgres -f C:\users\Raja\limesurvey29.backup
+
+
+
+curl $(minikube ip):$NODE_PORT

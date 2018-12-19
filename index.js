@@ -1,14 +1,12 @@
 var logger = console;
 var verbose = true;
-//var conString = "postgresql://postgres:SfApps123@vox.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/voxportal29";
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
-//var conString = "postgresql://postgres:SfApps123@vmicro.cmsddmg9z6s8.us-west-2.rds.amazonaws.com:5432/ls29";
-var conString = "postgresql://postgres:SfApps123@192.168.99.100:35432/ls29";
+var conString = "postgresql://postgres:SfApps123@192.168.99.102:32768/postgres";  // docker
 const { Client } = require('pg');
 var client;
-
 exports.handler = async (event) => {
-    if (verbose) logger.log("############### Loading Lambda handler ############");
+    if (verbose) logger.log("############### Inside Lambda handler - received event: ");
+    if (verbose) logger.log(event);
 
     client = new Client(conString);
     await client.connect();
@@ -19,12 +17,7 @@ exports.handler = async (event) => {
     var responseCode = "200";
     try {
         responseJson.statusCode = "400"; // assume error..overwrite later
-        if (verbose) logger.log("Event received: ");
-        if (verbose) logger.log(event);
-
         if (event.queryStringParameters != null) if (event.queryStringParameters.need != null) needsArray = event.queryStringParameters.need.split('-');
-        if (verbose) logger.log("  Received event:" + JSON.stringify(event));
-
         var responseBody = {};
 
         if (needsArray.includes('surveys')) responseBody.surveys = await getRawDataId();

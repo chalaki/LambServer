@@ -21,8 +21,8 @@ var handleRequest = function (request, response) {
 
         request.on('end', function () {
             var event = JSON.parse(body);
-            console.log(body);
-            console.log(event);
+            //console.log(body);
+            //console.log(event);
             var resultPromise = index.handler(event);
             var resp;
             resultPromise.then(function (result) {
@@ -31,9 +31,9 @@ var handleRequest = function (request, response) {
                 response.write(result.body);
                 response.end();
                 endTime = new Date();
-                console.log("web App POST ending At:", endTime);
+                //console.log("web App POST ending At:", endTime);
             }, function (err) {
-                console.log("index.handler failure\r\n");
+                console.log("index.handler() failure\r\n");
                 console.log(err);
                 resp = JSON.stringify(err);
                 response.write(resp);
@@ -42,7 +42,7 @@ var handleRequest = function (request, response) {
         });
     }
     else {
-        console.log("GET\r\n");
+        //console.log("GET\r\n");
         need = 'getsurveys';
         event = { queryStringParameters: { need: need, surveyId: 814412, supplierId: 1, supplierName: 'Mallesh', surveyName: 'Sattva', sdate: '2018-11-04', edate: '2018-11-08' } };
         var resultPromise = index.handler(event);
@@ -51,9 +51,10 @@ var handleRequest = function (request, response) {
             resp = JSON.stringify(result);
             response.write(result.body);
             response.end();
-            console.log("web App GET ending At:", endTime);
+            //console.log("web App GET ending At:", endTime);
         }, function (err) {
             resp = JSON.stringify(err);
+            console.log("index.handler() failure\r\n");
             response.write(resp);
             response.end();
         })
@@ -61,6 +62,6 @@ var handleRequest = function (request, response) {
 }
 var www = http.createServer(handleRequest);
 www.listen(port, async function () {
-    startTime = new Date();;
+    startTime = new Date().toLocaleString();
     console.log("Worker Started At:", startTime, " Port: ", port, "\n");
 });
