@@ -18,11 +18,11 @@ pipeline {
                 sh 'chmod 777 ./jenkins/scripts/kill.sh'
             }
         }
-        stage('Test') {
-            steps {
-                sh './jenkins/scripts/test.sh'
-            }
-        }
+        // stage('Test') {
+        //     steps {
+        //         sh './jenkins/scripts/test.sh'
+        //     }
+        // }
         stage('Deliver') { 
             steps {
                 sh './jenkins/scripts/deliver.sh' 
