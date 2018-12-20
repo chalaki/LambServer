@@ -14,6 +14,7 @@ pipeline {
             steps {
                 sh 'npm install'
                 sh 'npm install express'
+                sh 'npm install ejs'
                 sh 'npm install redis'
                 sh 'apk add docker'
                 sh 'chmod 777 ./jenkins/scripts/test.sh'
