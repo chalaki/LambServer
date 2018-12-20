@@ -13,6 +13,9 @@ pipeline {
             steps {
                 sh 'npm install'
                 sh 'apk add docker'
+                sh 'chmod 777 ./jenkins/scripts/test.sh'
+                sh 'chmod 777 ./jenkins/scripts/deliver.sh'
+                sh 'chmod 777 ./jenkins/scripts/kill.sh'
             }
         }
         stage('Test') {
