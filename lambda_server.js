@@ -15,7 +15,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs')
 
 var redis = require('redis');
-var redis_client = redis.createClient(32769, '192.168.99.102');
+var redis_port = 32781;
+var redis_server = '192.168.99.102';
+
+var redis_client = redis.createClient(redis_port, redis_server);
 // redis_client.on('error', function (err) {
 //     console.log('Something went wrong ', err)
 // });
