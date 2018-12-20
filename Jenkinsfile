@@ -13,6 +13,8 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'npm install'
+                sh 'npm install express'
+                sh 'npm install redis'
                 sh 'apk add docker'
                 sh 'chmod 777 ./jenkins/scripts/test.sh'
                 sh 'chmod 777 ./jenkins/scripts/deliver.sh'
