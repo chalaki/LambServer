@@ -50,10 +50,10 @@ app.post('/', function (req, res) {
             worker_ext_port = uenv.docker_ext_port;
         }
 
-        var logfile = './workerlogs/' + docker_name + '.log';
+        var local_worker_logfile = '/home/workerlogs/' + docker_name + '.log';
         var docker_build_cmd = 'docker build -t ' + docker_image + ' ./worker';
         var docker_run_cmd = 'docker run -d --name ' + docker_name + ' -t -p 0.0.0.0:' + worker_ext_port + ':' + worker_int_port.toString() + '/tcp  ' + docker_image;
-        var docker_copy_cmd = 'docker cp ' + docker_name + ':/worker.log  ' + logfile;
+        var docker_copy_cmd = 'docker cp ' + docker_name + ':/worker.log  ' + local_worker_logfile;
         var docker_stop_cmd = 'docker stop ' + docker_name;
         var docker_rm_cmd = 'docker rm ' + docker_name;
         let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
@@ -115,7 +115,7 @@ app.post('/', function (req, res) {
 
                 if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
                 const fs = require('fs');
-                fs.readFile(logfile, "utf8", function (err, data) {
+                fs.readFile(local_worker_logfile, "utf8", function (err, data) {
 
                     console.log(data);
                     if (err) res.render('index', { worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
