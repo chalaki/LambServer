@@ -22,12 +22,13 @@ var worker_int_port = 81;
 
 var redis_client = redis.createClient(redis_port, redis_dns);
 redis_client.on('error', function (err) {
-    console.log('Something went wrong ', err)
+    console.log('Something went wrong with redis ', err)
 });
-redis_client.set('my test key', JSON.stringify({ v: 'my test value', j: 'llll' }), redis.print);
-redis_client.get('my test key', function (error, result) {
+redis_client.set('mykey', JSON.stringify({ v: 'redis', j: 'working' }));
+
+redis_client.get('mykey', function (error, result) {
     if (error) throw error;
-    console.log('GET result ->', JSON.parse(result));
+    console.log('mykey', JSON.parse(result));
 });
 
 
