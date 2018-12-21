@@ -18,7 +18,7 @@ pipeline {
                 sh 'npm install redis'
                 sh 'npm install request'
                 sh 'apk add docker'
-                sh 'mkdir  /home/workerlogs/'
+                //sh 'mkdir  /home/workerlogs/'
                 sh 'chmod 777 ./jenkins/scripts/test.sh'
                 sh 'chmod 777 ./jenkins/scripts/deliver.sh'
                 sh 'chmod 777 ./jenkins/scripts/kill.sh'
