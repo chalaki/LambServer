@@ -3,7 +3,7 @@ pipeline {
         docker {
             image 'node:11-alpine'
             //image 'sundarigari/node'
-            args '-p 80:80 '
+            args '-p 80:80 --name lambserver'
         }
     }
     environment { 

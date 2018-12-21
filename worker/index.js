@@ -1,6 +1,6 @@
 exports.handler = async (event) => {
     var verbose = true;
-    if (verbose) console.log("###############   uuu Inside Lambda handler - received event: ");
+    if (verbose) console.log("########  ###### Inside Lambda handler - received event: ");
     if (verbose) console.log(event);
     var startTime = new Date().getTime();
     var responseJson = {};

@@ -5,8 +5,8 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 const app = express()
-const docker_image = 'sundarigari/node';
-var indexfile = "./docker/index.js";
+const docker_image = 'sundarigari/nodeworker'; //  node:11-alpine with pg for worker image
+var indexfile = "./worker/index.js";
 var userid = 'sund';
 var fname = 'myfunc';
 
@@ -15,47 +15,48 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs')
 
 var redis = require('redis');
-var redis_port = 32781;
-var redis_server = '192.168.99.102';
+var redis_port = 6379;
+var redis_dns = '192.168.99.100';
+var worker_dns = redis_dns;
+var worker_int_port = 81;
 
-var redis_client = redis.createClient(redis_port, redis_server);
-// redis_client.on('error', function (err) {
-//     console.log('Something went wrong ', err)
-// });
-// redis_client.set('my test key', JSON.stringify({ v: 'my test value', j: 'llll' }), redis.print);
-// redis_client.get('my test key', function (error, result) {
-//     if (error) throw error;
-//     console.log('GET result ->', JSON.parse(result));
-// });
+var redis_client = redis.createClient(redis_port, redis_dns);
+redis_client.on('error', function (err) {
+    console.log('Something went wrong ', err)
+});
+redis_client.set('my test key', JSON.stringify({ v: 'my test value', j: 'llll' }), redis.print);
+redis_client.get('my test key', function (error, result) {
+    if (error) throw error;
+    console.log('GET result ->', JSON.parse(result));
+});
 
 
 app.get('/', function (req, res) { res.render('index', { worker_log: null, worker_output: null, error: null }); })
 
 app.post('/', function (req, res) {
 
-    var docker_ext_port = (Math.floor(Math.random() * (10000)) + 30000).toString();
+    var worker_ext_port = (Math.floor(Math.random() * (10000)) + 30000).toString();
     var docker_name;
     var uenv;
 
     redis_client.get(userid + fname, function (error, result) {
-        if (error) {
-            docker_name = userid + fname + docker_ext_port;
-            redis_client.set(userid + fname, JSON.stringify({ docker_name: docker_name, docker_ext_port: docker_ext_port }), redis.print);
+        if (error || !result) {
+            docker_name = userid + fname + worker_ext_port;
+            redis_client.set(userid + fname, JSON.stringify({ docker_name: docker_name, docker_ext_port: worker_ext_port }), redis.print);
         }
         else {
             uenv = JSON.parse(result);
             docker_name = uenv.docker_name;
-            docker_ext_port = uenv.docker_ext_port;
+            worker_ext_port = uenv.docker_ext_port;
         }
 
-
         var logfile = './workerlogs/' + docker_name + '.log';
-        var docker_build_cmd = 'docker build -t ' + docker_image + ' ./docker';
-        var docker_run_cmd = 'docker run -d --name ' + docker_name + ' -t -p 0.0.0.0:' + docker_ext_port + ':8081/tcp  ' + docker_image;
+        var docker_build_cmd = 'docker build -t ' + docker_image + ' ./worker';
+        var docker_run_cmd = 'docker run -d --name ' + docker_name + ' -t -p 0.0.0.0:' + worker_ext_port + ':' + worker_int_port.toString() + '/tcp  ' + docker_image;
         var docker_copy_cmd = 'docker cp ' + docker_name + ':/worker.log  ' + logfile;
         var docker_stop_cmd = 'docker stop ' + docker_name;
         var docker_rm_cmd = 'docker rm ' + docker_name;
-        let url = 'http://192.168.99.102:' + docker_ext_port + '/';
+        let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
 
         var origindexfilecont = fs.readFileSync(indexfile, 'utf8');
         if (origindexfilecont != req.body.code) {
@@ -68,20 +69,25 @@ app.post('/', function (req, res) {
         //if (err) return console.log(err);
         var docker_running = false;
         try {
+            //execSync('docker-machine.exe env | Invoke-Expression');  // todo
             var outp = execSync("docker inspect -f '{{.State.Running}}' " + docker_name);
             docker_running = true;
         }
         catch {
             console.log("not running");
+            console.log(docker_build_cmd);
             execSync(docker_build_cmd);
             execSync(docker_run_cmd);
             docker_running = true;
         }
 
         var func_changed = origindexfilecont != req.body.code;
-        console.log(docker_build_cmd);
 
-        if (func_changed) execSync(docker_build_cmd);//, (err, stdout, stderr) => {  // build image from files in ./docker folder
+
+        if (func_changed) {
+            console.log(docker_build_cmd);
+            execSync(docker_build_cmd);//, (err, stdout, stderr) => {  // build image from files in ./docker folder
+        }
 
         //if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
         console.log(docker_run_cmd);

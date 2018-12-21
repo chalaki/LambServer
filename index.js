@@ -1,7 +1,9 @@
 var logger = console;
 var verbose = true;
+var postgres_dns = '192.168.99.100';
+var postgres_port = 5432;
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
-var conString = "postgresql://postgres:SfApps123@192.168.99.102:32768/postgres";  // docker
+var conString = 'postgresql://postgres:SfApps123@' + postgres_dns + ':' + postgres_port.toString() + '/postgres';  // docker
 const { Client } = require('pg');
 var client;
 exports.handler = async (event) => {

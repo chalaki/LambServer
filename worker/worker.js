@@ -3,7 +3,7 @@ var index = require('./index');
 var qs = require('querystring');
 var startTime;
 var host;
-var port = 8081;
+var port = 81;
 var handleRequest = function (request, response) {
 
     response.setHeader('Content-Type', 'text/plain');
