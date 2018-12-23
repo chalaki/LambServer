@@ -5,4 +5,4 @@ ADD .  /
 WORKDIR /
 # RUN chmod 777 ./server.sh
 EXPOSE 81
-CMD [ "ash", "worker.sh" ]
+CMD [ "ash", "worker.sh"]

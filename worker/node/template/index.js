@@ -13,7 +13,7 @@ exports.handler = async (event) => {
         var stopTime = new Date().getTime();
         var elapsedTime = (stopTime - startTime) / 1000.0;
         responseBody.elapsed = elapsedTime;
-        [1,2,3,4,5,6,7,8,9,10].forEach (i=> {responseBody[i] = i*i*i;});
+        Array.apply(null, { length: 5 }).map(Function.call, Math.random).forEach(i => { responseBody[i] = i * i * i; });
         console.log('elapsed: ' + elapsedTime);
         responseJson.isBase64Encoded = false;
         responseJson.statusCode = responseCode;

@@ -3,7 +3,7 @@ exports.handler = async (event) => {
     if (verbose) console.log("###############Inside Lambda handler - received event: ");
     if (verbose) console.log(event);
     var startTime = new Date().getTime(); 
-    var responseJson = {}; 
+    var responseJson = {};   
     var needsArray = [];  
     var responseCode = "200"; 
     try {
