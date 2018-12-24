@@ -56,6 +56,7 @@ app.get('/', function (req, res) {
 app.post('/', function (request, response) {
 
     startTime = new Date().getTime();
+    console.log("########################################### app.post at: ", new Date().toString());
     userid = request.body.userid;
     worker_platform = request.body.worker_platform;
     function_name = request.body.function_name;
@@ -129,46 +130,55 @@ app.post('/', function (request, response) {
                 console.log(docker_run_cmd);
                 exec(docker_run_cmd, (err, stdout, stderr) => {
                     if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
-                    postAndRender(request, response);
-                    cmd_stop_prev_container = 'docker stop ' + prev_docker_name;
-                    cmd_rm_prev_container = 'docker rm ' + prev_docker_name;
-                    exec(cmd_stop_prev_container, (err, stdout, stderr) => {
-                        if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
-                        exec(cmd_rm_prev_container, (err, stdout, stderr) => {
-                            if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
-                            var afterCleanupTime = new Date().getTime();
-                            console.log("Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
-                        });
-                    });
+                    setTimeout(() => { postAndRender(request, response, prev_docker_name) }, 1000);
                 });
             });
         }
-        else postAndRender(request, response);
+        else postAndRender(request, response, null);
     })
 });
 
-function postAndRender(req, res) {
+function postAndRender(req, res, prevdock) {
     const request = require('request');
     let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
+    console.log('##### postAndRender url:' + url);
     request.post({ url: url, body: req.body.event }, function (err, response2, body) {
         var local_worker_logfile = './workerlogs/' + docker_name + '.log';
         var docker_copy_logfile_cmd = 'docker cp ' + docker_name + ':/worker.log  ' + local_worker_logfile;
 
-        console.log(body);
-        console.log(docker_copy_logfile_cmd);
+        console.log('########## postAndRender POST to worker returned body: ' + body);
+        console.log('########## ' + docker_copy_logfile_cmd);
         exec(docker_copy_logfile_cmd, (err, stdout, stderr) => {
-
+            //console.log('############### after copy log ' + body);
             if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
             const fs = require('fs');
             fs.readFile(local_worker_logfile, "utf8", function (err, data) {
-                console.log(data);
+                //console.log('#################### logfile: ' + data);
                 if (err) res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
                 else res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_output: body, worker_log: data, error: null });
                 var renderTime = new Date().getTime();
-                console.log("Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
+                console.log("#################### Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
+                if (prevdock) dockerCleanup(prevdock);
             });
         });
     });
 }
 
-app.listen(80, function () { console.log('Chalaki serverless listening on port 80 go to http://localhost:80') })
+function dockerCleanup(prevdocker) {
+    console.log('##### dockerCleanup (' + prevdocker + ')');
+    cmd_stop_prev_container = 'docker stop ' + prevdocker;
+    cmd_rm_prev_container = 'docker rm ' + prevdocker;
+    console.log('##### ' + cmd_stop_prev_container + '\n');
+    exec(cmd_stop_prev_container, (err, stdout, stderr) => {
+        if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+        console.log('########## ' + cmd_rm_prev_container + '\n');
+        exec(cmd_rm_prev_container, (err, stdout, stderr) => {
+            if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+            var afterCleanupTime = new Date().getTime();
+            console.log("############### Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
+        });
+    });
+}
+var port = 80;
+if (process.argv.length > 2) port = process.argv[2];
+app.listen(port, function () { console.log('Chalaki serverless listening on port 80 go to http://localhost:80') });

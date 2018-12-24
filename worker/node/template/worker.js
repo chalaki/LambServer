@@ -13,6 +13,8 @@ var handleRequest = function (request, response) {
     response.setHeader('Content-Type', 'text/plain');
     response.writeHead(200);
     //console.log("handleRequest called ... \r\n");
+    const fs = require('fs');
+    fs.writeFileSync('./worker.log', '');
 
     if (request.method == 'POST') {
         //console.log("POST\r\n");
