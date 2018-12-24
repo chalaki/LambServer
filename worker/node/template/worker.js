@@ -2,7 +2,7 @@ var http = require('http');
 var index = require('./index');
 var startTime;
 var port = 81;
-var log4j = require('lo')
+
 
 var fs = require('fs');
 var worker_env = JSON.parse(fs.readFileSync('./worker.config', 'utf8'));
