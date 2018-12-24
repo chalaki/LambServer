@@ -44,13 +44,8 @@
 
             </form>
             <fieldset>
-                <textarea cols="100" rows="20"><% if(worker_output !== null){ %>
-                <%= worker_output %>  <% } %>
-            </textarea>
-                <textarea cols="100" rows="20"><% if(worker_log !== null){ %>
-                <%= worker_log %> <% } %>
-            </textarea></fieldset>
-
+                <textarea cols="100" rows="20"><% if(worker_output !== null){ %><%= worker_output %>  <% } %></textarea>
+                <textarea cols="100" rows="20"><% if(worker_log !== null){ %><%= worker_log %> <% } %></textarea></fieldset>
             <% if(error !== null){ %>
             <p>
                 <%= error %>
