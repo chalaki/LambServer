@@ -39,9 +39,10 @@
                 <fieldset> <textarea name="code" type="text" cols="100" rows="20" class="ghost-input" placeholder="Enter Code"
                         required><% if(worker_code !== null){ %><%= worker_code %><% } %></textarea>
                     <textarea name="event" type="text" cols="100" rows="20" class="ghost-input" placeholder="Enter event"
-                        required>{ "queryStringParameters": { "need": "getsurveys", "surveyId": 814412, "supplierId": 1, "supplierName": "Mallesh", "surveyName": "Sattva", "sdate": "2018-11-04", "edate": "2018-11-08" } }    
+                        required><% if(worker_event !== null){ %><%= worker_event %>
+                            <% } else { %>{ "queryStringParameters": { "need": "getsurveys", "surveyId": 814412, "supplierId": 1, "supplierName": "Mallesh", "surveyName": "Sattva", "sdate": "2018-11-04", "edate": "2018-11-08" } }
+                            <% } %>
                 </textarea></fieldset>
-
             </form>
             <fieldset>
                 <textarea cols="100" rows="20"><% if(worker_output !== null){ %><%= worker_output %>  <% } %></textarea>

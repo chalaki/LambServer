@@ -48,7 +48,8 @@ app.get('/', function (req, res) {
     var origindexfilecont = fs.existsSync(indexfile) ? fs.readFileSync(indexfile, 'utf8') : '';
     res.render('index', {
         userid: userid, worker_platform: worker_platform, function_name: function_name,
-        worker_code: origindexfilecont, worker_log: null, worker_output: null, error: null
+        worker_code: origindexfilecont, worker_log: null, worker_output: null, error: null,
+        worker_event: null
     });
 })
 //todo  worker folder may not exist
@@ -154,8 +155,11 @@ function postAndRender(req, res, prevdock) {
             const fs = require('fs');
             fs.readFile(local_worker_logfile, "utf8", function (err, data) {
                 //console.log('#################### logfile: ' + data);
-                if (err) res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
-                else res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_output: body, worker_log: data, error: null });
+                if (err) res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_event: req.body.event, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
+                else res.render('index', {
+                    userid: userid, worker_event: req.body.event, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code,
+                    worker_output: body, worker_log: data, error: null
+                });
                 var renderTime = new Date().getTime();
                 console.log("#################### Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
                 if (prevdock) dockerCleanup(prevdock);
