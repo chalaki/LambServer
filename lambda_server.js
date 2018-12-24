@@ -157,8 +157,8 @@ function postAndRender(req, res, prevdock) {
                 //console.log('#################### logfile: ' + data);
                 if (err) res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_event: req.body.event, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
                 else res.render('index', {
-                    userid: userid, worker_event: req.body.event, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code,
-                    worker_output: body, worker_log: data, error: null
+                    userid: userid, worker_event: JSON.stringify(JSON.parse(req.body.event), null, 2), worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code,
+                    worker_output: JSON.stringify(JSON.parse(body), null, 2), worker_log: data, error: null
                 });
                 var renderTime = new Date().getTime();
                 console.log("#################### Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);

@@ -1,5 +1,5 @@
 var logger = console;
-var verbose = true;
+var verbose = false;
 var postgres_dns = '192.168.99.100';
 var postgres_port = 5432;
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
@@ -224,7 +224,7 @@ const getSuppliersReport = async function (qsp) {
 };
 
 const getColumnName = async function (tip, surveyId) {
-    if (!verbose) logger.log("getColumnName(" + tip + ", " + surveyId + ")");
+    if (verbose) logger.log("getColumnName(" + tip + ", " + surveyId + ")");
     var getColumnNameQuery = "", retval = "";
     try {
         getColumnNameQuery = "Select concat(lq.sid,'X',lq.gid,'X',lq.qid) as columnname "
