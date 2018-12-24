@@ -27,7 +27,13 @@
                 </script> -->
                 <fieldset>
                     <input type="text" name="userid" value="<% if(userid !== null){ %><%= userid %><% } %>">
-                    <input type="text" name="worker_platform" value="<% if(worker_platform !== null){ %><%= worker_platform %><% } %>">
+                    <select name="worker_platform">
+                        <option selected>
+                            <% if(worker_platform !== null){ %>
+                            <%= worker_platform %>
+                            <% } %>
+                        </option>
+                    </select>
                     <input type="text" name="function_name" value="<% if(function_name !== null){ %><%= function_name %><% } %>">
                     <input type="submit" class="ghost-button" value="Lamda"></fieldset>
                 <fieldset> <textarea name="code" type="text" cols="100" rows="20" class="ghost-input" placeholder="Enter Code"

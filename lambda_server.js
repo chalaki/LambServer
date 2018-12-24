@@ -33,17 +33,19 @@ const redis_client = redis.createClient(redis_port, redis_dns);
 //     if (error) throw error;
 //     console.log('mykey', JSON.parse(result));
 // });
-var origindexfilecont = '';
+
 worker_folder = './worker/' + worker_platform + '/' + userid + '/' + function_name + '/';
 indexfile = worker_folder + 'index.js';
-if (fs.existsSync(indexfile)) origindexfilecont = fs.readFileSync(indexfile, 'utf8');
+
 
 const app = express();
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs')
+var startTime = new Date().getTime();
 
 app.get('/', function (req, res) {
+    var origindexfilecont = fs.existsSync(indexfile) ? fs.readFileSync(indexfile, 'utf8') : '';
     res.render('index', {
         userid: userid, worker_platform: worker_platform, function_name: function_name,
         worker_code: origindexfilecont, worker_log: null, worker_output: null, error: null
@@ -53,9 +55,12 @@ app.get('/', function (req, res) {
 
 app.post('/', function (request, response) {
 
+    startTime = new Date().getTime();
     userid = request.body.userid;
     worker_platform = request.body.worker_platform;
     function_name = request.body.function_name;
+
+    var origindexfilecont = fs.existsSync(indexfile) ? fs.readFileSync(indexfile, 'utf8') : '';
 
     worker_folder = './worker/' + worker_platform + '/' + userid + '/' + function_name + '/';
     worker_template_folder = './worker/' + worker_platform + '/template/';
@@ -78,17 +83,17 @@ app.post('/', function (request, response) {
         var cmd_rm_prev_container;
         var func_changed = origindexfilecont.trim() != request.body.code.trim();
         var docker_running = false;
-        // try {
-        //     execSync("docker inspect -f '{{.State.Running}}' " + docker_name);
-        //     docker_running = true;
-        // }
-        // catch {
-        //     console.log(docker_name + " worker container not running");
-        //     execSync(docker_run_cmd);
-        //     docker_running = true;
-        // }
 
-        if (func_changed) {
+        try {
+            execSync("docker inspect -f '{{.State.Running}}' " + docker_name);
+            docker_running = true;
+        }
+        catch {
+            console.log(docker_name + " worker container not running");
+            docker_running = false;
+        }
+
+        if (func_changed || !docker_running) {
             var old_comspec = process.env.comspec;
             if (process.platform === 'win32') process.env.comspec = 'bash';
             // set config 
@@ -131,6 +136,8 @@ app.post('/', function (request, response) {
                         if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
                         exec(cmd_rm_prev_container, (err, stdout, stderr) => {
                             if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+                            var afterCleanupTime = new Date().getTime();
+                            console.log("Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
                         });
                     });
                 });
@@ -157,6 +164,8 @@ function postAndRender(req, res) {
                 console.log(data);
                 if (err) res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
                 else res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_output: body, worker_log: data, error: null });
+                var renderTime = new Date().getTime();
+                console.log("Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
             });
         });
     });
