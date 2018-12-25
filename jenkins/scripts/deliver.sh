@@ -19,8 +19,8 @@ echo 'of the previously run process (i.e. "npm start") and writes this value to'
 echo 'the file ".pidfile".'
 set -x
 #npm start &
-node ./lambda_server.js  
-#node ./lambda_server.js > /home/lambda_server.log &
+#node ./lambda_server.js  &
+node ./lambda_server.js > /home/lambda_server.log &
 sleep 1
 echo $! > .pidfile
 set +x
