@@ -174,7 +174,7 @@ function postAndRender(req, res, prevdock, prevdocimage) {
 function dockerCleanup(prevdocker, prevdocimage) {
     console.log('##### dockerCleanup (' + prevdocker + ')');
     cmd_stop_prev_container = 'docker stop ' + prevdocker;
-    cmd_rm_prev_container = 'docker rm ' + prevdocker;
+    cmd_rm_prev_container = 'docker rm -rf ' + prevdocker;
     cmd_rmi_prev_image = 'docker rmi ' + prevdocimage;
     console.log('##### ' + cmd_stop_prev_container + '\n');
     exec(cmd_stop_prev_container, (err, stdout, stderr) => {
