@@ -12,7 +12,7 @@ const worker_int_port = 81;
 var userid = 'sund';
 var worker_platform = 'node';
 var function_name = 'myfunc';
-const docker_image = 'sundarigari/node.11-alpine.pg:v2'; //userid + '/' + worker_platform + function_name; //  node:11-alpine with pg for worker image
+var docker_image;// = 'sundarigari/node.11-alpine.pg:v2'; //userid + '/' + worker_platform + function_name; //  node:11-alpine with pg for worker image
 
 var worker_folder;
 var worker_template_folder;
@@ -116,9 +116,10 @@ app.post('/', function (request, response) {
 
             // build run new image
             var prev_docker_name = docker_name;
+            var prev_docker_image = docker_image;
             worker_ext_port = (Math.floor(Math.random() * (10000)) + 30000).toString();
             docker_name = userid + worker_platform + function_name + worker_ext_port;
-
+            docker_image = docker_name + "_img";
             var docker_build_cmd = 'docker build -t ' + docker_image + ' ' + worker_folder;
             var docker_run_cmd = 'docker run -d --name ' + docker_name + ' -t -p 0.0.0.0:' + worker_ext_port + ':' + worker_int_port.toString() + '/tcp  ' + docker_image;
 
@@ -131,15 +132,15 @@ app.post('/', function (request, response) {
                 console.log(docker_run_cmd);
                 exec(docker_run_cmd, (err, stdout, stderr) => {
                     if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
-                    setTimeout(() => { postAndRender(request, response, prev_docker_name) }, 1000);
+                    setTimeout(() => { postAndRender(request, response, prev_docker_name, prev_docker_image) }, 1000);
                 });
             });
         }
-        else postAndRender(request, response, null);
+        else postAndRender(request, response, null, null);
     })
 });
 
-function postAndRender(req, res, prevdock) {
+function postAndRender(req, res, prevdock, prevdocimage) {
     const request = require('request');
     let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
     console.log('##### postAndRender url:' + url);
@@ -162,24 +163,29 @@ function postAndRender(req, res, prevdock) {
                 });
                 var renderTime = new Date().getTime();
                 console.log("#################### Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
-                if (prevdock) dockerCleanup(prevdock);
+                if (prevdock) dockerCleanup(prevdock, prevdocimage);
             });
         });
     });
 }
 
-function dockerCleanup(prevdocker) {
+function dockerCleanup(prevdocker, prevdocimage) {
     console.log('##### dockerCleanup (' + prevdocker + ')');
     cmd_stop_prev_container = 'docker stop ' + prevdocker;
     cmd_rm_prev_container = 'docker rm ' + prevdocker;
+    cmd_rmi_prev_image = 'docker rmi ' + prevdocimage;
     console.log('##### ' + cmd_stop_prev_container + '\n');
     exec(cmd_stop_prev_container, (err, stdout, stderr) => {
         if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
         console.log('########## ' + cmd_rm_prev_container + '\n');
         exec(cmd_rm_prev_container, (err, stdout, stderr) => {
             if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
-            var afterCleanupTime = new Date().getTime();
-            console.log("############### Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
+            console.log('########## ' + cmd_rmi_prev_image + '\n');
+            exec(cmd_rmi_prev_image, (err, stdout, stderr) => {
+                if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+                var afterCleanupTime = new Date().getTime();
+                console.log("############### Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
+            });
         });
     });
 }

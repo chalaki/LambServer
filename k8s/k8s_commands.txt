@@ -20,6 +20,7 @@ docker commit
 
 Kubernites/minikube/common cmds
 ------------------------------
+minikube start
 minikube dashboard
 minikube docker-env # follow instruction to run last line to have docker client point to minikube docker host
 kubectl get pods
