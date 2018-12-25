@@ -43,6 +43,8 @@ curl $(minikube ip):$NODE_PORT
 
 Jenkins
  --------
+ node /home/Dropbox/Business/Chalaki/Clients/SoftForce/workspace/NodeApps2/NodeApps/lambda_server.js
+ 
  docker run -d --name postgres -t -p 0.0.0.0:5432:5432/tcp  postgres
  docker run -d --name redis    -t -p 0.0.0.0:6379:6379/tcp  redis
  docker run --rm -d -u root --name jenkins -p 8080:8080 -v jenkins-data:/var/jenkins_home -v //var/run/docker.sock:/var/run/docker.sock -v //c/Users/Raja/:/home jenkinsci/blueocean

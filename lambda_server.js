@@ -1,3 +1,4 @@
+"use strict";
 const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
@@ -8,21 +9,15 @@ const redis_port = 6379;
 const redis_dns = '192.168.99.100';
 const worker_dns = redis_dns;
 const worker_int_port = 81;
+var worker_platform = 'node';
+
 
 var userid = 'sund';
-var worker_platform = 'node';
 var function_name = 'myfunc';
-var docker_image;// = 'sundarigari/node.11-alpine.pg:v2'; //userid + '/' + worker_platform + function_name; //  node:11-alpine with pg for worker image
+//var docker_image;// = 'sundarigari/node.11-alpine.pg:v2'; //userid + '/' + worker_platform + function_name; //  node:11-alpine with pg for worker image
 
-var worker_folder;
-var worker_template_folder;
-var indexfile;
 var redis_key;
-
-var docker_name;
 var uenv;
-var worker_ext_port;
-
 const redis_client = redis.createClient(redis_port, redis_dns);
 // redis_client.on('error', function (err) {
 //     console.log('Something went wrong with redis ', err)
@@ -34,8 +29,7 @@ const redis_client = redis.createClient(redis_port, redis_dns);
 //     console.log('mykey', JSON.parse(result));
 // });
 
-worker_folder = './worker/' + worker_platform + '/' + userid + '/' + function_name + '/';
-indexfile = worker_folder + 'index.js';
+
 
 
 const app = express();
@@ -45,6 +39,8 @@ app.set('view engine', 'ejs')
 var startTime = new Date().getTime();
 
 app.get('/', function (req, res) {
+    var worker_folder = './worker/' + worker_platform + '/' + userid + '/' + function_name + '/';
+    var indexfile = worker_folder + 'index.js';
     var origindexfilecont = fs.existsSync(indexfile) ? fs.readFileSync(indexfile, 'utf8') : '';
     res.render('index', {
         userid: userid, worker_platform: worker_platform, function_name: function_name,
@@ -55,6 +51,9 @@ app.get('/', function (req, res) {
 //todo  worker folder may not exist
 
 app.post('/', function (request, response) {
+    var worker_ext_port; var docker_name; var docker_image;
+    var worker_folder = './worker/' + worker_platform + '/' + userid + '/' + function_name + '/';
+    var indexfile = worker_folder + 'index.js';
 
     startTime = new Date().getTime();
     console.log("########################################### app.post at: ", new Date().toString());
@@ -65,7 +64,7 @@ app.post('/', function (request, response) {
     var origindexfilecont = fs.existsSync(indexfile) ? fs.readFileSync(indexfile, 'utf8') : '';
 
     worker_folder = './worker/' + worker_platform + '/' + userid + '/' + function_name + '/';
-    worker_template_folder = './worker/' + worker_platform + '/template/';
+    var worker_template_folder = './worker/' + worker_platform + '/template/';
     indexfile = worker_folder + 'index.js';
     redis_key = userid + worker_platform + function_name;
 
@@ -81,8 +80,6 @@ app.post('/', function (request, response) {
             worker_ext_port = uenv.docker_ext_port;
         }
 
-        var cmd_stop_prev_container;
-        var cmd_rm_prev_container;
         var func_changed = origindexfilecont.trim() != request.body.code.trim();
         var docker_running = false;
 
@@ -91,7 +88,7 @@ app.post('/', function (request, response) {
             docker_running = true;
         }
         catch {
-            console.log(docker_name + " worker container not running");
+            console.info(docker_name + " worker container not running");
             docker_running = false;
         }
 
@@ -104,8 +101,9 @@ app.post('/', function (request, response) {
 
             execSync('echo \'' + JSON.stringify(config) + '\' > ' + worker_template_folder + 'worker.config');
             try {
-                execSync('mkdir ./worker/' + worker_platform + '/' + userid);
-                execSync('mkdir ' + worker_folder);
+                var worker_folder_parent = './worker/' + worker_platform + '/' + userid + '/';
+                if (!fs.existsSync(worker_folder_parent)) execSync('mkdir ' + worker_folder_parent);
+                if (!fs.existsSync(worker_folder)) execSync('mkdir ' + worker_folder);
             }
             catch  { }
             execSync('cp -r ' + worker_template_folder + '*  ' + worker_folder);
@@ -130,35 +128,42 @@ app.post('/', function (request, response) {
             execSync(docker_build_cmd);
             exec(docker_build_cmd, (err, stdout, stderr) => {
 
-                if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+                if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
                 console.log(docker_run_cmd);
                 exec(docker_run_cmd, (err, stdout, stderr) => {
-                    if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
-                    setTimeout(() => { postAndRender(request, response, prev_docker_name, prev_docker_image) }, 1000);
+                    if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
+                    let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
+                    setTimeout(() => { postAndRender(url, request, response, docker_name, prev_docker_name, prev_docker_image) }, 1000);
                 });
             });
         }
-        else postAndRender(request, response, null, null);
+        else {
+            let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
+            postAndRender(url, request, response, docker_name, null, null);
+        }
     })
 });
 
-function postAndRender(req, res, prevdock, prevdocimage) {
+function postAndRender(url, req, res, dockername, prevdock, prevdocimage) {
     const request = require('request');
-    let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
+
     console.log('##### postAndRender url:' + url);
     request.post({ url: url, body: req.body.event }, function (err, response2, body) {
-        var local_worker_logfile = './workerlogs/' + docker_name + '.log';
-        var docker_copy_logfile_cmd = 'docker cp ' + docker_name + ':/worker.log  ' + local_worker_logfile;
+        var local_worker_logfile = './workerlogs/' + dockername + '.log';
+        var docker_copy_logfile_cmd = 'docker cp ' + dockername + ':/worker.log  ' + local_worker_logfile;
 
         console.log('########## postAndRender POST to worker returned body: ' + body);
         console.log('########## ' + docker_copy_logfile_cmd);
         exec(docker_copy_logfile_cmd, (err, stdout, stderr) => {
             //console.log('############### after copy log ' + body);
-            if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+            if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
             const fs = require('fs');
             fs.readFile(local_worker_logfile, "utf8", function (err, data) {
                 //console.log('#################### logfile: ' + data);
-                if (err) res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_event: req.body.event, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
+                if (err) {
+                    res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_event: req.body.event, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
+                    console.error(err);
+                }
                 else res.render('index', {
                     userid: userid, worker_event: JSON.stringify(JSON.parse(req.body.event), null, 2), worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code,
                     worker_output: JSON.stringify(JSON.parse(body), null, 2), worker_log: data, error: null
@@ -173,20 +178,20 @@ function postAndRender(req, res, prevdock, prevdocimage) {
 
 function dockerCleanup(prevdocker, prevdocimage) {
     console.log('##### dockerCleanup (' + prevdocker + ')');
-    cmd_stop_prev_container = 'docker stop ' + prevdocker;
-    cmd_rm_prev_container = 'docker rm -rf ' + prevdocker;
-    cmd_rmi_prev_image = 'docker rmi ' + prevdocimage;
+    var cmd_stop_prev_container = 'docker stop ' + prevdocker;
+    var cmd_rm_prev_container = 'docker rm -f ' + prevdocker;
+    var cmd_rmi_prev_image = 'docker rmi ' + prevdocimage;
     console.log('##### ' + cmd_stop_prev_container + '\n');
     exec(cmd_stop_prev_container, (err, stdout, stderr) => {
-        if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+        if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
         console.log('########## ' + cmd_rm_prev_container + '\n');
         setTimeout(() => {
             exec(cmd_rm_prev_container, (err, stdout, stderr) => {
-                if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+                if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
                 console.log('########## ' + cmd_rmi_prev_image + '\n');
                 setTimeout(() => {
                     exec(cmd_rmi_prev_image, (err, stdout, stderr) => {
-                        if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+                        if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
                         var afterCleanupTime = new Date().getTime();
                         console.log("############### Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
                     });
