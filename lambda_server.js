@@ -116,10 +116,12 @@ app.post('/', function (request, response) {
 
             // build run new image
             var prev_docker_name = docker_name;
-            var prev_docker_image = docker_image;
+            var prev_docker_image = prev_docker_name + "_img";
+
             worker_ext_port = (Math.floor(Math.random() * (10000)) + 30000).toString();
             docker_name = userid + worker_platform + function_name + worker_ext_port;
             docker_image = docker_name + "_img";
+
             var docker_build_cmd = 'docker build -t ' + docker_image + ' ' + worker_folder;
             var docker_run_cmd = 'docker run -d --name ' + docker_name + ' -t -p 0.0.0.0:' + worker_ext_port + ':' + worker_int_port.toString() + '/tcp  ' + docker_image;
 
