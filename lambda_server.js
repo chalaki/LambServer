@@ -122,7 +122,7 @@ app.post('/', function (request, response) {
 
             var docker_build_cmd = 'docker build -t ' + docker_image + ' ' + worker_folder;
             var docker_run_cmd = 'docker run -d --name ' + docker_name + ' -t -p 0.0.0.0:' + worker_ext_port + ':' + worker_int_port.toString() + '/tcp  ' + docker_image;
-
+            var start_worker_cmd = 'docker exec -d  ' + docker_name + ' ./worker.sh';
             redis_client.set(redis_key, JSON.stringify({ docker_name: docker_name, docker_ext_port: worker_ext_port }), redis.print);
             console.log(docker_build_cmd);
             execSync(docker_build_cmd);
@@ -133,7 +133,10 @@ app.post('/', function (request, response) {
                 exec(docker_run_cmd, (err, stdout, stderr) => {
                     if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
                     let url = 'http://' + worker_dns + ':' + worker_ext_port + '/';
-                    setTimeout(() => { postAndRender(url, request, response, docker_name, prev_docker_name, prev_docker_image) }, 1000);
+                    exec(start_worker_cmd, (err, stdout, stderr) => {
+                        if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.error(`${stderr}`);
+                        setTimeout(() => { postAndRender(url, request, response, docker_name, prev_docker_name, prev_docker_image) }, 1000);
+                    });
                 });
             });
         }
@@ -149,10 +152,12 @@ function postAndRender(url, req, res, dockername, prevdock, prevdocimage) {
 
     console.log('##### postAndRender url:' + url);
     request.post({ url: url, body: req.body.event }, function (err, response2, body) {
+
         var local_worker_logfile = './workerlogs/' + dockername + '.log';
         var docker_copy_logfile_cmd = 'docker cp ' + dockername + ':/worker.log  ' + local_worker_logfile;
 
         console.log('########## postAndRender POST to worker returned body: ' + body);
+        if (!body) body = '{}';
         console.log('########## ' + docker_copy_logfile_cmd);
         exec(docker_copy_logfile_cmd, (err, stdout, stderr) => {
             //console.log('############### after copy log ' + body);
@@ -161,12 +166,21 @@ function postAndRender(url, req, res, dockername, prevdock, prevdocimage) {
             fs.readFile(local_worker_logfile, "utf8", function (err, data) {
                 //console.log('#################### logfile: ' + data);
                 if (err) {
-                    res.render('index', { userid: userid, worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code, worker_event: req.body.event, worker_output: url + err, worker_log: url + err, error: url + ' Error calling POST on worker' });
+                    res.render('index', {
+                        userid: userid, worker_event: JSON.stringify(JSON.parse(req.body.event), null, 2),
+                        worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code,
+                        worker_output: url + err,
+                        worker_log: url + err,
+                        error: url + ' Error calling POST on worker'
+                    });
                     console.error(err);
                 }
                 else res.render('index', {
-                    userid: userid, worker_event: JSON.stringify(JSON.parse(req.body.event), null, 2), worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code,
-                    worker_output: JSON.stringify(JSON.parse(body), null, 2), worker_log: data, error: null
+                    userid: userid, worker_event: JSON.stringify(JSON.parse(req.body.event), null, 2),
+                    worker_platform: worker_platform, function_name: function_name, worker_code: req.body.code,
+                    worker_output: JSON.stringify(JSON.parse(body), null, 2),
+                    worker_log: data,
+                    error: null
                 });
                 var renderTime = new Date().getTime();
                 console.log("#################### Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
