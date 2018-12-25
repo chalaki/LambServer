@@ -163,7 +163,7 @@ function postAndRender(req, res, prevdock, prevdocimage) {
                 });
                 var renderTime = new Date().getTime();
                 console.log("#################### Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
-                if (prevdock) dockerCleanup(prevdock, prevdocimage);
+                if (prevdock) setTimeout(() => { dockerCleanup(prevdock, prevdocimage); }, 3000);
             });
         });
     });
