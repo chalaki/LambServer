@@ -163,7 +163,7 @@ function postAndRender(req, res, prevdock, prevdocimage) {
                 });
                 var renderTime = new Date().getTime();
                 console.log("#################### Rendered at: ", new Date().toString() + ' elapsed: ' + (renderTime - startTime) / 1000.0);
-                if (prevdock) setTimeout(() => { dockerCleanup(prevdock, prevdocimage); }, 3000);
+                if (prevdock) setTimeout(() => { dockerCleanup(prevdock, prevdocimage); }, 1000);
             });
         });
     });
@@ -181,11 +181,13 @@ function dockerCleanup(prevdocker, prevdocimage) {
         exec(cmd_rm_prev_container, (err, stdout, stderr) => {
             if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
             console.log('########## ' + cmd_rmi_prev_image + '\n');
-            exec(cmd_rmi_prev_image, (err, stdout, stderr) => {
-                if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
-                var afterCleanupTime = new Date().getTime();
-                console.log("############### Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
-            });
+            setTimeout(() => {
+                exec(cmd_rmi_prev_image, (err, stdout, stderr) => {
+                    if (`${stdout}` != "") console.log(`${stdout}`); if (`${stderr}` != "") console.log(`${stderr}`);
+                    var afterCleanupTime = new Date().getTime();
+                    console.log("############### Cleanup at: ", new Date().toString() + ' elapsed: ' + (afterCleanupTime - startTime) / 1000.0);
+                });
+            }, 3000);
         });
     });
 }
