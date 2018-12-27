@@ -8,7 +8,7 @@
 # fi
 echo "starting node worker.js > worker.log"
 #node worker.js > worker.log 
-node ./worker.js > worker.log 2> worker_node_err.log
+node ./worker.js > worker.log 2> worker.log
 # sleep 1
 # echo $! > .pidfile
 # set +x

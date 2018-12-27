@@ -33,10 +33,25 @@ postgres install
 ----------------
 kubectl delete deployment postgres
 kubectl create deployment postgres --image=postgres
+#kubectl run  --image=postgres --port=5432
 kubectl delete service postgres
 kubectl expose deployment postgres --type=LoadBalancer --port=5432
-psql -h 192.168.99.100 -p 30360 -d ls29 -U postgres -f C:\users\Raja\limesurvey29.backup
+psql -h 192.168.99.101 -p 32430 -d postgres -U postgres -f C:\users\Raja\limesurvey29.backup
 
+redis install
+-------------------
+kubectl delete deployment redis
+kubectl create deployment redis --image=redis
+kubectl delete service redis
+kubectl expose deployment redis --type=LoadBalancer --port=6379
+
+LambServer install
+-------------------
+docker build -t lambserver .
+kubectl delete deployment lambserver
+kubectl create deployment lambserver --image=sundarigari/lambserver:v3
+kubectl delete service lambserver
+kubectl expose deployment lambserver --type=LoadBalancer --port=80
 
 
 curl $(minikube ip):$NODE_PORT

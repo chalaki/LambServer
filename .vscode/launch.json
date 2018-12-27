@@ -1,27 +1,15 @@
-{ 
-    "version": "2017-02-28",
-    "operation": "Scan",
-    "filter": #if($context.args.filter) $util.transform.toDynamoDBFilterExpression($ctx.args.filter) #else null #end,
-    "limit": #if($context.arguments.limit) $context.arguments.limit #else 10 #end,
-    "nextToken": #if($context.arguments.nextToken) "$context.arguments.nextToken" #else null #end
-}
-
-
 {
-    "items": $util.toJson($context.result.items),
-    "nextToken": $util.toJson($context.result.nextToken)
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "outputCapture": "std",
+            "program": "${workspaceFolder}/lambda_server.js"
+        }
+    ]
 }
-
-
-#**
-The value of 'payload' after the template has been evaluated
-will be passed as the event to AWS Lambda.
-*#
-{
-  "version" : "2017-02-28",
-  "operation": "Invoke",
-  "payload":  {
-      "queryStringParameters": $util.toJson($context.arguments)
-      }
-}
-$util.toJson($util.parseJson($context.result.body).putsurvey)

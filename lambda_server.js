@@ -5,10 +5,10 @@ const { exec } = require('child_process');
 const { execSync } = require('child_process');
 const fs = require('fs');
 const redis = require('redis');
-const redis_port = 6379;
-const redis_dns = '192.168.99.100';
-const worker_dns = redis_dns;
-const worker_int_port = 81;
+var redis_port = 6379;
+var redis_dns = '192.168.99.100';
+var worker_dns = redis_dns;
+var worker_int_port = 81;
 var worker_platform = 'node';
 
 
@@ -18,17 +18,36 @@ var function_name = 'myfunc';
 
 var redis_key;
 var uenv;
-const redis_client = redis.createClient(redis_port, redis_dns);
-// redis_client.on('error', function (err) {
-//     console.log('Something went wrong with redis ', err)
-// });
-// redis_client.set('mykey', JSON.stringify({ v: 'redis', j: 'working' }));
 
-// redis_client.get('mykey', function (error, result) {
-//     if (error) throw error;
-//     console.log('mykey', JSON.parse(result));
-// });
 
+
+//const winston = require('winston');
+const { format, createLogger, transports } = require('winston');
+
+const logger = createLogger({
+    format: format.combine(
+        format.label({ label: '[my-label]' }),
+        format.timestamp({
+            format: 'YYYY-MM-DD HH:mm:ss'
+        }),
+        //
+        // The simple format outputs
+        // `${level}: ${message} ${[Object with everything else]}`
+        //
+        format.simple()
+        //
+        // Alternatively you could use this custom printf format if you
+        // want to control where the timestamp comes in your final message.
+        // Try replacing `format.simple()` above with this:
+        //
+        //format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+    ),
+    transports: [
+        new transports.Console()
+    ]
+});
+
+logger.info('Hello there. How are you?');
 
 
 
@@ -220,4 +239,14 @@ function dockerCleanup(prevdocker, prevdocimage) {
 }
 var port = 80;
 if (process.argv.length > 2) port = process.argv[2];
-app.listen(port, function () { console.log('Chalaki serverless listening on port 80 go to http://localhost:80') });
+if (process.argv.length > 3) redis_dns = process.argv[3];
+if (process.argv.length > 4) redis_port = process.argv[4];
+if (process.argv.length > 5) worker_int_port = process.argv[5];
+const redis_client = redis.createClient(redis_port, redis_dns);
+redis_client.on('error', function (err) { console.log('Something went wrong with redis ', err) });
+redis_client.set('mykey', JSON.stringify({ v: 'redis', j: 'working' }));
+redis_client.get('mykey', function (error, result) {
+    if (error) throw error;
+    console.log('mykey', JSON.parse(result));
+});
+app.listen(port, function () { console.log('Chalaki serverless listening on port 80 go to http://localhost:' + port) });
