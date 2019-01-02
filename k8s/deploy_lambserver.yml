@@ -1,0 +1,18 @@
+apiVersion:  apps/v1
+kind: Deployment
+metadata:
+  name: lambserver
+spec:  
+  selector:
+      matchLabels:
+        app: lambserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: lambserver
+    spec:
+      serviceAccountName: lambserver
+      containers:
+      - name: lambserver
+        image: "sundarigari/lambserver:v5"

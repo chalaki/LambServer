@@ -1,20 +1,20 @@
 var logger = console;
-var verbose = false;  
-var postgres_dns = '192.168.99.100';
-var postgres_port = 5432; 
+var verbose = false; 
+var postgres_dns = '192.168.99.100';  
+var postgres_port = 30432;
 //var conString = "postgresql://postgres:SfApps123@localhost:5432/limesurvey29";
 var conString = 'postgresql://postgres:SfApps123@' + postgres_dns + ':' + postgres_port.toString() + '/postgres';  // docker
-const { Client } = require('pg'); 
-var client;      
+const { Client } = require('pg');
+var client; 
 exports.handler = async (event) => {
     if (verbose) logger.log("############### Inside Lambda handler - received event: ");
-    if (verbose) logger.log(event);  
+    if (verbose) logger.log(event);
 
-    client = new Client(conString);    
-    await client.connect();  
+    client = new Client(conString);
+    await client.connect(); 
 
-    var startTime = new Date().getTime();    
-    var responseJson = {}; 
+    var startTime = new Date().getTime();
+    var responseJson = {};
     var needsArray = [];
     var responseCode = "200";
     try {
@@ -31,7 +31,6 @@ exports.handler = async (event) => {
         var elapsedTime = (stopTime - startTime) / 1000.0;
         responseBody.elapsed = elapsedTime;
         logger.log('elapsed: ' + elapsedTime);
-
         responseJson.isBase64Encoded = false;
         responseJson.statusCode = responseCode;
         responseJson.headers = { "x-custom-header": "my custom header value" };

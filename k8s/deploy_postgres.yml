@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+      mainapp: lambserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+        mainapp: lambserver
+    spec:      
+      volumes:
+        - name: pg-persistent-storage
+          persistentVolumeClaim:
+            claimName: pg-volumeclaim
+      containers:
+      - name: postgres
+        image: "postgres"
+        env:
+        - name: "PORT"
+          value: "5432"
+        - name: PGDATA
+          value: /var/lib/postgresql/data/lsdb
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-db-pass
+              key: password
+        volumeMounts:
+              - name: pg-persistent-storage
+                mountPath: /var/lib/postgresql/data/lsdb

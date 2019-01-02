@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      mainapp: lambserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+        mainapp: lambserver
+    spec:        
+      volumes:
+      - name: redis-persistent-storage
+        persistentVolumeClaim:
+          claimName: redis-volumeclaim
+      containers:
+      - name: redis
+        image: redis:3-alpine
+        command: ["redis-server"]
+        args: ["--requirepass", "$(REDIS_PASSWORD)", "--appendonly", "yes"]
+        env:
+        - name: "PORT"
+          value: "6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-password
+              key: password
+        volumeMounts:
+        - name: redis-persistent-storage
+          mountPath: /data/ 

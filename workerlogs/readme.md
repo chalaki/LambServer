@@ -1,1 +1,0 @@
-all worker logs go into this folder

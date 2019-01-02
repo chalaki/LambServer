@@ -3,10 +3,9 @@ var index = require('./index');
 var startTime;
 var port = 81;
 
-
 var fs = require('fs');
 var worker_env = JSON.parse(fs.readFileSync('./worker.config', 'utf8'));
-var verbose = false;
+var verbose = true;
 
 var handleRequest = function (request, response) {
 
@@ -19,7 +18,7 @@ var handleRequest = function (request, response) {
     if (request.method == 'POST') {
         //console.log("POST\r\n");
         var startTime = new Date().getTime();
-        if (verbose) console.log("web App POST starting At: ", new Date().toString());
+        if (verbose) console.log("worker POST received at: ", new Date().toString());
         var body = '';
         request.on('data', function (data) {
             body += data;
@@ -42,7 +41,7 @@ var handleRequest = function (request, response) {
                 if (result.body) response.write(result.body);
                 else response.write(resp);
                 response.end();
-                if (verbose) console.log("web App POST ending At:", new Date().toString() + ' elapsed: ' + elapsedTime);
+                if (verbose) console.log("worker POST ending At:", new Date().toString() + ' elapsed: ' + elapsedTime);
             }, function (err) {
                 console.error("index.handler() failure\r\n");
                 console.error(err);
@@ -75,10 +74,10 @@ var handleRequest = function (request, response) {
 var www = http.createServer(handleRequest);
 www.listen(port, async function () {
     startTime = new Date().toLocaleString();
-    var redis = require('redis');
-    var redis_port = 6379;
-    var redis_dns = '192.168.99.100';
-    var worker_dns = redis_dns;
+    // var redis = require('redis');
+    // var redis_port = 6379;
+    // var redis_dns = '192.168.99.100';
+    // var worker_dns = redis_dns;
 
     if (verbose) console.log("******************* Worker Started At:", startTime, " Port: ", port, JSON.stringify(worker_env));
 });

@@ -3,10 +3,9 @@ var index = require('./index');
 var startTime;
 var port = 81;
 
-
 var fs = require('fs');
 var worker_env = JSON.parse(fs.readFileSync('./worker.config', 'utf8'));
-var verbose = false;
+var verbose = true;
 
 var handleRequest = function (request, response) {
 

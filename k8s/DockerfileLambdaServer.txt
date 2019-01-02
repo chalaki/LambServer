@@ -1,4 +1,5 @@
 FROM sundarigari/node.11-alpine.exp.redis.kctl:latest
+USER root
 ADD .  /
-#CMD [ "ash", "-c", "node ./lambda_server.js 80 192.168.99.101 30243"]
+#CMD [ "ash", "-c", "node ./lambda_server.js"]
 CMD ["sh", "-c", "tail -f /dev/null"]

@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nodeworker
+spec:
+  template:
+    metadata:
+      labels:
+        app: nodeworker
+    spec:
+      containers:
+      - image: sundarigari/lamb-worker-node
+        name: nodeworker
