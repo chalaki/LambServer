@@ -7,5 +7,6 @@ else
         echo "$file not found."
 fi
 echo "re-starting node worker.js > worker.log &"
-node ./worker.js > worker.log 2> worker.log &
-sleep 1
+(node ./worker.js > worker.log 2> worker.log) &
+sleep  1
+echo $! > "$file"

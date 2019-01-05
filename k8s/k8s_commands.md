@@ -18,6 +18,7 @@ gcloud config set project [PROJECT_ID]
 gcloud config set compute/zone us-central1-b  
 gcloud container clusters create persistent-disk-tutorial --num-nodes=3
 gcloud container clusters get-credentials persistent-disk-tutorial
+gcloud auth configure-docker
 
 
 # Kubernites/minikube/common cmds
@@ -54,44 +55,49 @@ gcloud container clusters get-credentials persistent-disk-tutorial
 ## create persistent volume claim
     kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\pvc_pg.yaml    
 
-## using manifest yml files: (The range of valid ports is 30000-32767)
-    kubectl apply -f depoy_postgres.yml   
-    kubectl apply -f service_postgres.yml   
+- using manifest yml files: (The range of valid ports is 30000-32767)
++ kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\deploy_postgres.yml   
+- kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\service_postgres.yml 
++ kubectl get -o jsonpath="{.spec.ports[0].nodePort}" services postgres # to see nodePort of postgres service  
 ## run psql and load data. Note: 30432 was the nodePort in the service_postgres.yml which is external port
     psql -h $(minikube ip) -p 30432 -d postgres -U postgres -f C:\users\Raja\limesurvey29.backup  
-    gcloud config set project lambserver
-    psql -h 35.226.40.14 -p 30432 -d postgres -U postgres -f C:\users\Raja\limesurvey29.1.backup  # gcloud
-    pg_dump -h  35.226.40.14 -p 30432 -d postgres -U postgres   > C:\users\Raja\limesurvey29.1.backup  # gcloud
+    psql -h 104.154.26.17 -p 5432 -d postgres -U postgres -f C:\users\Raja\limesurvey29.backup  # gcloud SQL
+    pg_dump -h  35.226.248.125 -p 30432 -d postgres -U postgres   > C:\users\Raja\limesurvey29.1.backup  # gcloud
 
 # redis 
 kubectl delete deployment redis  
 kubectl delete service redis  
-## using cmdline arguments
 ### create secret
     kubectl create secret generic redis-password --from-literal=password=SfApps123
 ### create pvc
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\pvc_redis.yaml
-### direct cmd args    
-    kubectl create deployment redis --image=redis  
-    kubectl expose deployment redis --type=LoadBalancer --port=6379  
-### using manifest yml files: (The range of valid ports is 30000-32767)
-    kubectl apply -f depoy_redis.yml   
-    kubectl apply -f service_redis.yml   
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\pvc_redis.yaml   
+### create deployment and service using manifest yml files: (The range of valid ports is 30000-32767)   
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\deploy_redis.yml   
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\service_redis.yml   
 
 # LambServer install
-## optional
-## docker build -t sundarigari/lambserver:v6 -f .\k8s\DockerfileLambdaServerBase.txt .
-kubectl delete deployment lambserver
-docker rmi sundarigari/lambserver:v6
-docker build -t sundarigari/lambserver:v6 -f .\k8s\DockerfileLambdaServer.txt .
-docker push sundarigari/lambserver:v6
+## optional worker image build and push
+docker build -t sundarigari/lamb-worker-node:v17   C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\worker\node\template\
+docker push sundarigari/lamb-worker-node:v17
+
+## docker build -t sundarigari/lambserver:vXXX -f .\k8s\DockerfileLambdaServerBase.txt .
+
+docker build -t sundarigari/lambserver:v17 -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\DockerfileLambdaServer.txt C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\
+docker push sundarigari/lambserver:v17
 ### assign role to lambserver to be cluster admin before deployment
-kubectl apply -f ./k8s/create_serviceaccount.yml
-kubectl apply -f ./k8s/create_servicerole_binding.yml
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\create_serviceaccount.yml
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\create_servicerole_binding.yml
+### create pvc
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\pvc_lambserver.yaml   
+### create deployment and service
+    kubectl delete deployment lambserver
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\deploy_lambserver.yml   
+    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\service_lambserver_lb.yml  
+### open firewall for workers to be accessed at nodePort
+gcloud compute firewall-rules create open-all-ports --allow tcp:30000-32767  
 
-kubectl apply -f ./k8s/deploy_lambserver.yml   
-kubectl apply -f ./k8s/service_lambserver.yml  
-
+### access lamb server shell
+kubectl exec $(kubectl get pod -l app=lambserver -o jsonpath="{.items[0].metadata.name}") -it sh
 
 gcloud config set project lambserver
 gcloud compute firewall-rules create lambserver-port --allow tcp:32080
@@ -136,3 +142,11 @@ choose GIT
 
 ## VS Code launch for local dev with docker env
 Start-Process  -NoNewWindow   "C:\Users\Raja\AppData\Local\Programs\Microsoft VS Code\Code.exe"
+
+
+# debug in k8
+## run below command in the pod
+node --inspect-brk=0.0.0.0 ./lambda_server.js 90
+### run this in locally
+kubectl port-forward lambserver-7b4857d87f-kmv4x 9229
+### go to chrome://inspect/#devices in chrome browser to the the code and step thru it 

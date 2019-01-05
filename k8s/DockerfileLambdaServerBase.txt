@@ -6,6 +6,7 @@ RUN npm install express
 RUN npm install ejs
 RUN npm install redis
 RUN npm install request
+RUN npm install winston-daily-rotate-file
 RUN apk add docker
 RUN apk add bash
 ADD https://storage.googleapis.com/kubernetes-release/release/v1.6.4/bin/linux/amd64/kubectl /usr/local/bin/kubectl

@@ -13,6 +13,16 @@ spec:
         app: lambserver
     spec:
       serviceAccountName: lambserver
+      volumes:
+        - name: lambserver-persistent-storage
+          persistentVolumeClaim:
+            claimName: lambserver-volumeclaim
       containers:
-      - name: lambserver
-        image: "sundarigari/lambserver:v5"
+        - name: lambserver
+          image: sundarigari/lambserver:v17
+          ports:
+            - containerPort: 80
+              name: lambserver
+          volumeMounts:
+            - name: lambserver-persistent-storage
+              mountPath: /logs

@@ -20,7 +20,7 @@ spec:
             claimName: pg-volumeclaim
       containers:
       - name: postgres
-        image: "postgres"
+        image: postgres:11-alpine
         env:
         - name: "PORT"
           value: "5432"
@@ -33,4 +33,4 @@ spec:
               key: password
         volumeMounts:
               - name: pg-persistent-storage
-                mountPath: /var/lib/postgresql/data/lsdb
+                mountPath: /var/lib/postgresql/data/

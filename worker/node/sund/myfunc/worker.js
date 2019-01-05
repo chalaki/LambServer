@@ -7,18 +7,30 @@ var fs = require('fs');
 var worker_env = JSON.parse(fs.readFileSync('./worker.config', 'utf8'));
 var verbose = true;
 
+var winston = require('winston');
+const logger = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.label({ label: 'lambserver' }),
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        // The simple format outputs
+        // `${level}: ${message} ${[Object with everything else]}`
+        //format.simple()
+        winston.format.printf(x => `${x.timestamp} ${x.level}: ${x.message}`)
+    ),
+    transports: [new winston.transports.Console()]
+});
+
 var handleRequest = function (request, response) {
 
     response.setHeader('Content-Type', 'text/plain');
     response.writeHead(200);
-    //console.log("handleRequest called ... \r\n");
+    if (verbose) logger.info("handleRequest called");
     const fs = require('fs');
     fs.writeFileSync('./worker.log', '');
 
     if (request.method == 'POST') {
-        //console.log("POST\r\n");
+        if (verbose) logger.info("worker POST received at: " + new Date().toString());
         var startTime = new Date().getTime();
-        if (verbose) console.log("web App POST starting At: ", new Date().toString());
         var body = '';
         request.on('data', function (data) {
             body += data;
@@ -28,10 +40,11 @@ var handleRequest = function (request, response) {
 
         request.on('end', function () {
             var event = JSON.parse(body);
+            if (verbose) logger.info("calling index.handler");
             var resultPromise = index.handler(event);
             var resp;
             resultPromise.then(function (result) {
-                if (verbose) console.log("index.handler success\r\n");
+                if (verbose) logger.info("index.handler success");
                 var stopTime = new Date().getTime();
                 var elapsedTime = (stopTime - startTime) / 1000.0;
                 result.elapsedWorkerTime = elapsedTime;
@@ -41,10 +54,10 @@ var handleRequest = function (request, response) {
                 if (result.body) response.write(result.body);
                 else response.write(resp);
                 response.end();
-                if (verbose) console.log("web App POST ending At:", new Date().toString() + ' elapsed: ' + elapsedTime);
+                if (verbose) logger.info("worker POST ending At:" + new Date().toString() + ' elapsed: ' + elapsedTime);
             }, function (err) {
-                console.error("index.handler() failure\r\n");
-                console.error(err);
+                logger.error("index.handler() failure");
+                logger.error(err);
                 resp = JSON.stringify(err);
                 response.write(resp);
                 response.end();
@@ -52,9 +65,10 @@ var handleRequest = function (request, response) {
         });
     }
     else {
-        //console.log("GET\r\n");
+        if (verbose) logger.info("worker GET received at: " + new Date().toString());
         need = 'getsurveys';
         event = { queryStringParameters: { need: need, surveyId: 814412, supplierId: 1, supplierName: 'Mallesh', surveyName: 'Sattva', sdate: '2018-11-04', edate: '2018-11-08' } };
+        if (verbose) logger.info("calling index.handler");
         var resultPromise = index.handler(event);
         var resp;
         resultPromise.then(function (result) {
@@ -62,10 +76,10 @@ var handleRequest = function (request, response) {
             if (result.body) response.write(result.body);
             else response.write(resp);
             response.end();
-            //console.log("web App GET ending At:", endTime);
+            if (verbose) logger.info("worker GET ending at: " + endTime);
         }, function (err) {
             resp = JSON.stringify(err);
-            if (verbose) console.log("index.handler() failure\r\n");
+            if (verbose) logger.error("index.handler() failure: " + JSON.stringify(err));
             response.write(resp);
             response.end();
         })
@@ -79,5 +93,5 @@ www.listen(port, async function () {
     var redis_dns = '192.168.99.100';
     var worker_dns = redis_dns;
 
-    if (verbose) console.log("******************* Worker Started At:", startTime, " Port: ", port, JSON.stringify(worker_env));
+    if (verbose) logger.info("Worker Started at: ", startTime, " port: ", port, JSON.stringify(worker_env));
 });
