@@ -2,7 +2,9 @@
 docker build -t sundarigari/node  -f dockerfile .
 docker push sundarigari/node # pushes to docker.io
 docker pull sundarigari/node # pulls from docker.io
+docker run -d --name lambserver -t -p 0.0.0.0:80:80/tcp  -v /var/run/docker.sock:/var/run/docker.sock sundarigari/lambserver:v17
 docker run -d --name worker -t -p 0.0.0.0:81:81/tcp  -v /var/run/docker.sock:/var/run/docker.sock sundarigari/nodeworker
+
 docker cp  c:/temp/index.js runr:/
 docker exec -d runr bash server.sh
 docker stop runr
@@ -80,9 +82,9 @@ kubectl delete service redis
 docker build -t sundarigari/lamb-worker-node:v17   C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\worker\node\template\
 docker push sundarigari/lamb-worker-node:v17
 
-## docker build -t sundarigari/lambserver:vXXX -f .\k8s\DockerfileLambdaServerBase.txt .
-
-docker build -t sundarigari/lambserver:v17 -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\DockerfileLambdaServer.txt C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\
+## docker images
+    docker build -t sundarigari/node.11-alpine.exp.redis.kctl -f .\DockerfileLambdaServerBase.txt C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\
+    docker build -t sundarigari/lambserver:v17 C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\
 docker push sundarigari/lambserver:v17
 ### assign role to lambserver to be cluster admin before deployment
     kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\create_serviceaccount.yml
@@ -96,8 +98,10 @@ docker push sundarigari/lambserver:v17
 ### open firewall for workers to be accessed at nodePort
 gcloud compute firewall-rules create open-all-ports --allow tcp:30000-32767  
 
-### access lamb server shell
+### access lamb server shell or watch logs
 kubectl exec $(kubectl get pod -l app=lambserver -o jsonpath="{.items[0].metadata.name}") -it sh
+kubectl exec -it  $(kubectl get pod -l app=lambserver -o jsonpath="{.items[0].metadata.name}") tail -- -f logs/lambserver-2019-MM-DD.log
+kubectl port-forward --namespace default $(kubectl get pod -l app=lambserver -o jsonpath="{.items[0].metadata.name}") 80 ## to access at http://localhost
 
 gcloud config set project lambserver
 gcloud compute firewall-rules create lambserver-port --allow tcp:32080

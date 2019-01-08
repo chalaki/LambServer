@@ -20,6 +20,7 @@ spec:
       containers:
         - name: lambserver
           image: sundarigari/lambserver:v17
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
               name: lambserver

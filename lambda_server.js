@@ -47,9 +47,16 @@ var startTime = new Date().getTime();
 
 app.get('/', function (req, res) {
     logger.info('lambserver GET\n...................................');
+    var origindexfilecont;
     var worker_folder = './worker/' + worker_platform + '/' + userid + '/' + function_name + '/';
     var indexfile = worker_folder + 'index.js';
-    var origindexfilecont = fs.existsSync(indexfile) ? fs.readFileSync(indexfile, 'utf8') : '';
+    if (!fs.existsSync(indexfile)) {
+        worker_folder = './worker/' + worker_platform + '/template/';
+        indexfile = worker_folder + 'index.js';
+        origindexfilecont = fs.existsSync(indexfile) ? fs.readFileSync(indexfile, 'utf8') : '';
+    }
+    else origindexfilecont = fs.readFileSync(indexfile, 'utf8');
+
     res.render('index', {
         userid: userid, worker_platform: worker_platform, function_name: function_name,
         worker_code: origindexfilecont, worker_log: null, worker_output: null, error: null,

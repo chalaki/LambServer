@@ -1,0 +1,14 @@
+# Logs
+logs
+.vscode
+.gitignore
+jenkins
+Jenkinsfile
+k8s
+VOX
+sqs.js
+worker
+!worker/node/template/
+ DockerfileLambdaServerBase.txt
+ Dockerfile
+ sql
