@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sundgomyfunc
+spec:
+  template:
+    metadata:
+      labels:
+        app: sundgomyfunc
+    spec:
+      containers:
+      - image: sundarigari/lamb-worker-go:v1
+        imagePullPolicy: Always
+        name: sundgomyfunc

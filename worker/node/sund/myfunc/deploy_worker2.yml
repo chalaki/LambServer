@@ -1,14 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: sundnodemyfunc
+  name: nodeworker
 spec:
   template:
     metadata:
       labels:
-        app: sundnodemyfunc
+        app: nodeworker
     spec:
       containers:
-      - name: sundnodemyfunc
-        image: sundarigari/lamb-worker-node
-        
+      - image: sundarigari/lamb-worker-node
+        name: nodeworker

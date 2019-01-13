@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: goworker
+spec:
+  template:
+    metadata:
+      labels:
+        app: goworker
+    spec:
+      containers:
+      - image: sundarigari/lamb-worker-go:v1
+        name: goworker
