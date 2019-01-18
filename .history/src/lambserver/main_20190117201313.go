@@ -178,8 +178,8 @@ func main() {
 		return
 	}
 
-	// http.ListenAndServe(":80", r)
-	f(nil, nil)
+	http.ListenAndServe(":80", r)
+	f()
 }
 
 //func f(indexfile string, request struct) {
@@ -259,7 +259,7 @@ func f(response http.ResponseWriter, request *http.Request) {
 		}
 	}
 	var body = ""
-	//XXXX request.Body.Read([]byte(body))
+	request.Body.Read([]byte(body))
 	var code = "" // request.body.code
 
 	var funcChanged = origindexfilecont != body //XXXX

@@ -259,7 +259,7 @@ func f(response http.ResponseWriter, request *http.Request) {
 		}
 	}
 	var body = ""
-	//XXXX request.Body.Read([]byte(body))
+	request.Body.Read([]byte(body))
 	var code = "" // request.body.code
 
 	var funcChanged = origindexfilecont != body //XXXX
