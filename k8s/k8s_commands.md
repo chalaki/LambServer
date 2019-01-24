@@ -24,6 +24,13 @@ gcloud auth configure-docker
 
 
 # Kubernites/minikube/common cmds
+kubectl custer-info
+kubectl get -o=name pvc,configmap,serviceaccount,secret,ingress,service,deployment,statefulset,hpa,job,cronjob,pod # returns all pods, deployments, secrets etc.
+kubectl get -o=yaml --export pod/mc1 > mc1.yaml  # use pod/podname or deployment/dname etc.
+kubectl describe pod # to see what image a pod is using
+kubectl edit pod podname # gets and edits the yaml in vi. On save it wil be applied.
+
+
 ## kublectl can work with multiple clusters (minikube, gcloud, AWS etc).   
 ### work with gcloud
     gcloud container clusters get-credentials lambserver-cluster --zone us-central1-a --project lambserver #get gcloud cluster cotext to c:/users/user-name/.kube/config
@@ -48,7 +55,8 @@ gcloud auth configure-docker
     kubectl get pvc  # get persistant volume claims
     kubectl create secret generic dbpass --from-literal=password=SfApps123
     kubectl get pod -l app=mysql  # get the pod name (to shell using cmd: kubectl exec -it podname sh)
-
+    kubectl delete StatefulSet --all
+    
 # postgres 
     kubectl delete deployment postgres  
     kubectl delete service postgres  
