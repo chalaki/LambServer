@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+	<title>Supplier Report</title>
+	<!------------------For Jquery Plugin --------------------->
+	<script type="text/javascript" src="./AjaxTest_files/jquery-2.2.3.min.js.download"></script>
+	<script type="text/javascript" src="./AjaxTest_files/jquery-ui.min.js.download"></script>
+	<script type="text/javascript" src="./AjaxTest_files/jquery.dataTables.min.js.download"></script>
+	<script type="text/javascript" src="./AjaxTest_files/bootstrap.min.js.download"></script>
+
+	<!------------------For Bootstrap Plugin  ----------------->
+	<link href="./AjaxTest_files/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="./AjaxTest_files/bootstrapValidator.css">
+	<link rel="stylesheet" type="text/css" href="./AjaxTest_files/jquery.dataTables.min.css">
+	<script type="text/javascript" src="./AjaxTest_files/bootstrapValidator.js.download"></script>
+
+	<!------------------Custom CSS ---------------------------->
+	<link href="./AjaxTest_files/style.css" rel="stylesheet" type="text/css">
+	<link href="./AjaxTest_files/Member.css" rel="stylesheet" type="text/css">
+	<link href="./AjaxTest_files/inettuts.js.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="./AjaxTest_files/font-awesome.min.css">
+
+	<style type="text/css">
+		#loading {
+			width: 100%;
+			height: 100%;
+			top: 0px;
+			left: 0px;
+			position: fixed;
+			display: none;
+			opacity: 0.7;
+			background-color: #fff;
+			z-index: 99;
+			text-align: center;
+		}
+	</style>
+	<header name="Access-Control-Allow-Origin" value="*" />
+</head>
+
+<body>
+	<div>
+		<script src="./AjaxTest_files/dataTables.buttons.min.js.download" type="text/javascript"></script>
+		<script src="./AjaxTest_files/buttons.flash.min.js.download" type="text/javascript"></script>
+		<script src="./AjaxTest_files/jszip.min.js.download" type="text/javascript"></script>
+		<script src="./AjaxTest_files/pdfmake.min.js.download" type="text/javascript"></script>
+		<script src="./AjaxTest_files/buttons.html5.min.js.download" type="text/javascript"></script>
+		<script src="./AjaxTest_files/buttons.print.min.js.download" type="text/javascript"></script>
+		<link rel="stylesheet" type="text/css" href="./AjaxTest_files/select2.min.css">
+		<script type="text/javascript" src="./AjaxTest_files/select2.min.js.download"></script>
+		<script type="text/javascript" src="./AjaxTest_files/supplier_report.js"></script>
+		<link rel="stylesheet" href="./AjaxTest_files/jquery-ui.css">
+
+		<style>
+			table.dataTable thead th, table.dataTable thead td {
+				padding: 3px 18px;
+				border-bottom: 1px solid #CDCDCD;border-top: 1px solid #CDCDCD;border-left: 1px solid #CDCDCD;border-right: 1px solid #CDCDCD;
+			}
+		</style>
+		<div id="wrapper">
+			<div class="row" style="padding:2%">
+				<div class="col-md-12">
+					<form method="POST" action="">
+						<div class="col-md-12">
+							<div class="form-group" style="height: 30px!important">
+								<div class="row form-group">
+									<label class="col-sm-3 " style="margin-top: 5px;">Surveys</label>
+									<div class="col-sm-6">
+										<select class="form-control" id="surveys" name="surveys" style="font-size: 13px;">
+										</select>
+									</div>
+								</div>
+								<div class="row form-group">
+									<label class="col-sm-3 " style="margin-top: 5px;">Suppliers</label>
+									<div class="col-sm-6">
+										<select class="form-control" id="suppliers" name="suppliers" style="font-size: 13px;">
+											<option value="ALL">All </option>
+										</select>
+									</div>
+								</div>
+								<div class="row form-group">
+									<label class="col-sm-3 " style="margin-top: 5px;">Start Date</label>
+									<div class="col-sm-6">
+										<input id="start_dateofreport" class="form-control hasDatepicker" placeholder="Select Date" value="2018-11-01">
+									</div>
+								</div>
+								<div class="row form-group">
+									<label class="col-sm-3 " style="margin-top: 5px;">End Date</label>
+									<div class="col-sm-6">
+										<input id="end_dateofreport" class="form-control hasDatepicker" placeholder="Select End Date" value="2018-11-02">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row  form-group">
+							<div class="col-md-12 col-sm-12 col-lg-12 col-xs-12">
+								<div class="form-group">
+									<div class="col-md-6 col-sm-6 col-lg-6 col-xs-6" id="StatusDiv" style="color:red"></div>
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding: 10px;">
+										<button type="button" id="downloadSupplierReport" class="btn btn-primary btn-block">Show Supplier Report</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 col-sm-12 col-lg-12 col-xs-12">
+								<div class="form-group">
+									<div class="table-responsive">
+										<table class="hover" id="supplierReportTable" style="word-wrap: break-word;">
+											<thead style="background: #3da1ce; color: #FFF; padding: 0px; padding-left: 10px;">
+											</thead>
+											<tbody>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="clr"></div>
+	</div>
+	<div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all"></div>
+</body>
+
+</html>
