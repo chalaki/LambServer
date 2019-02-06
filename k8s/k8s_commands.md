@@ -25,6 +25,8 @@ gcloud auth configure-docker
 
 # Kubernites/minikube/common cmds
 kubectl custer-info
+kubectl get all # gets all k8 objects pods,deployments,rs,configmaps,services,jobs etc
+
 kubectl get -o=name pvc,configmap,serviceaccount,secret,ingress,service,deployment,statefulset,hpa,job,cronjob,pod # returns all pods, deployments, secrets etc.
 kubectl get -o=yaml --export pod/mc1 > mc1.yaml  # use pod/podname or deployment/dname etc.
 kubectl describe pod # to see what image a pod is using
