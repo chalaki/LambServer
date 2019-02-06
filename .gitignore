@@ -62,4 +62,3 @@ typings/
 .next
 
 .history
-src/test/event-simulator.py
