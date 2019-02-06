@@ -2,9 +2,11 @@
 
 ## node.js
 ### web interface (node express)
-|main code:         |ejs views          |
-| -------------     |:------------------:|
+
+|main code          |ejs views          |
+|-------------------|-------------------|
 |/lambda_server.js  |/views/index.ejs   |
+
 ### lambda example function in javascript 
 /index.js  
 all lambda must have one and only one exports.handler = async (event) => {  // function body }
