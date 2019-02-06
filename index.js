@@ -1,3 +1,6 @@
+// sample lambda function 
+// all lambda must have one and only one exports.handler = async (event) => {  // function body }
+
 var logger = console;
 var verbose = false;
 var postgres_dns = '104.154.26.17'; //'35.226.248.125';
@@ -5,6 +8,7 @@ var postgres_port = 5432; //30432;
 var conString = 'postgresql://postgres:SfApps123@' + postgres_dns + ':' + postgres_port.toString() + '/postgres';  // docker
 const { Client } = require('pg');
 var client;
+
 exports.handler = async (event) => {
     if (verbose) logger.log("Lambda handler - received event: ");
     if (verbose) logger.log(JSON.stringify(event));
