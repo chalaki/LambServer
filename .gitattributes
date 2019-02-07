@@ -1,3 +1,8 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 AjaxTest/* linguist-vendored
+node_modules/* linguist-vendored
+logs/* linguist-vendored
+sql/* linguist-vendored
+workerlogs/* linguist-vendored
+
