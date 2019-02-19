@@ -3,8 +3,8 @@
 ## create redis deployment
 kubectl apply -f redis-secrets.yaml  
 kubectl apply -f pv_redis.yaml #pv and pvc  
-kubectl apply deploy_redis.yaml  
-kubectl apply service_redis.yaml  
+kubectl apply -f deploy_redis.yaml  
+kubectl apply -f service_redis.yaml  
 
 ## node.js
 ### web interface (node express)
