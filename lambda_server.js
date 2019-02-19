@@ -3,12 +3,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const { execSync } = require('child_process');
+
 const k8_namespace = 'default';
 const fs = require('fs');
 const request = require('request');
 const redis = require('redis');
 var redis_port = 30379;  // 6379
-var nodeip = '35.226.248.125'; //'192.168.99.100';
+var nodeip = '192.168.99.101';
+//'10.0.2.15';//'35.226.248.125'; //;  // run minikube ip command to get ip of master
 var redis_dns = nodeip;//'10.0.3.3';
 var redis_key;
 var worker_dns = nodeip;
@@ -291,8 +293,8 @@ if (process.argv.length > 3) redis_dns = process.argv[3];
 if (process.argv.length > 4) redis_port = process.argv[4];
 if (process.argv.length > 5) worker_int_port = process.argv[5];
 const redis_client = redis.createClient(redis_port, redis_dns);
-redis_client.auth('SfApps123');
-redis_client.on('error', function (err) { logger.info('Something went wrong with redis ', err) });
+redis_client.auth('redis123'); // password
+redis_client.on('error', function (err) { logger.error('Something went wrong with redis '); logger.error(err); });
 redis_client.set('mykey', JSON.stringify({ v: 'redis is', j: 'working' }));
 redis_client.get('mykey', function (error, result) {
     if (error) throw error;

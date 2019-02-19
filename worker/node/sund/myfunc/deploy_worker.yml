@@ -9,5 +9,5 @@ spec:
         app: nodeworker
     spec:
       containers:
-      - image: sundarigari/lamb-worker-node
+      - image: sundarigari/lamb-worker-node:v17
         name: nodeworker

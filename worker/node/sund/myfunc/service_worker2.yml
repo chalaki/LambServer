@@ -1,13 +1,12 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  name: nodeworker
+  name: sundnodemyfunc
 spec:
-  template:
-    metadata:
-      labels:
-        app: nodeworker
-    spec:
-      containers:
-      - image: sundarigari/lamb-worker-node
-        name: nodeworker
+  type: NodePort
+  selector:
+    app: sundnodemyfunc
+  ports:
+  - protocol: TCP
+    port: 81
+    nodePort: 30796
