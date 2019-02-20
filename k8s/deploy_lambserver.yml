@@ -1,29 +1,29 @@
-apiVersion:  apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lambserver
-spec:  
+spec:
   selector:
-      matchLabels:
-        app: lambserver
+    matchLabels:
+      app: lambserver
   replicas: 1
   template:
     metadata:
       labels:
         app: lambserver
     spec:
-      serviceAccountName: lambserver
+      serviceAccountName: lambserver-account
       volumes:
         - name: lambserver-persistent-storage
           persistentVolumeClaim:
             claimName: lambserver-volumeclaim
       containers:
-        - name: lambserver
+        - name: lambserver-container
           image: sundarigari/lambserver:v17
           imagePullPolicy: Always
           ports:
             - containerPort: 80
-              name: lambserver
+              #name: lambserver-port
           volumeMounts:
             - name: lambserver-persistent-storage
               mountPath: /logs

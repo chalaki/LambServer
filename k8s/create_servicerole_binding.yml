@@ -1,12 +1,10 @@
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: fabric8-rbac
+  name: lambserver-rbac
 subjects:
   - kind: ServiceAccount
-    # Reference to upper's `metadata.name`
-    name: lambserver
-    # Reference to upper's `metadata.namespace`
+    name: lambserver-account
     namespace: default
 roleRef:
   kind: ClusterRole

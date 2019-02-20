@@ -65,11 +65,11 @@ kubectl edit pod podname # gets and edits the yaml in vi. On save it wil be appl
 ## create secret
     kubectl create secret generic postgres-db-pass --from-literal=password=SfApps123
 ## create persistent volume claim
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\pvc_pg.yaml    
+    kubectl apply -f pvc_pg.yaml    
 
 - using manifest yml files: (The range of valid ports is 30000-32767)
-+ kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\deploy_postgres.yml   
-- kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\service_postgres.yml 
++ kubectl apply -f deploy_postgres.yml   
+- kubectl apply -f service_postgres.yml 
 + kubectl get -o jsonpath="{.spec.ports[0].nodePort}" services postgres # to see nodePort of postgres service  
 ## run psql and load data. Note: 30432 was the nodePort in the service_postgres.yml which is external port
     psql -h $(minikube ip) -p 30432 -d postgres -U postgres -f C:\users\Raja\limesurvey29.backup  
@@ -82,29 +82,29 @@ kubectl delete service redis
 ### create secret
     kubectl create secret generic redis-password --from-literal=password=SfApps123
 ### create pvc
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\pvc_redis.yaml   
+    kubectl apply -f pvc_redis.yaml   
 ### create deployment and service using manifest yml files: (The range of valid ports is 30000-32767)   
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\deploy_redis.yml   
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\service_redis.yml   
+    kubectl apply -f deploy_redis.yml   
+    kubectl apply -f service_redis.yml   
 
 # LambServer install
 ## optional worker image build and push
-docker build -t sundarigari/lamb-worker-node:v17   C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\worker\node\template\
+docker build -t sundarigari/lamb-worker-node:v17   .\worker\node\template\
 docker push sundarigari/lamb-worker-node:v17
 
 ## docker images
-    docker build -t sundarigari/node.11-alpine.exp.redis.kctl -f .\DockerfileLambdaServerBase.txt C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\
-    docker build -t sundarigari/lambserver:v17 C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\
+    docker build -t sundarigari/node.11-alpine.exp.redis.kctl -f .\DockerfileLambdaServerBase.txt .\
+    docker build -t sundarigari/lambserver:v17 .\
 docker push sundarigari/lambserver:v17
 ### assign role to lambserver to be cluster admin before deployment
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\create_serviceaccount.yml
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\create_servicerole_binding.yml
+    kubectl apply -f create_serviceaccount.yml
+    kubectl apply -f create_servicerole_binding.yml
 ### create pvc
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\pvc_lambserver.yaml   
+    kubectl apply -f pvc_lambserver.yaml   
 ### create deployment and service
     kubectl delete deployment lambserver
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\deploy_lambserver.yml   
-    kubectl apply -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\service_lambserver_lb.yml  
+    kubectl apply -f deploy_lambserver.yml   
+    kubectl apply -f service_lambserver_lb.yml  
 ### open firewall for workers to be accessed at nodePort
 gcloud compute firewall-rules create open-all-ports --allow tcp:30000-32767  
 
@@ -150,9 +150,9 @@ docker run --rm -d -u root --name jenkins -p 8080:8080 -v jenkins-data:/var/jenk
 choose script from SCM  
 choose GIT  
 ### choose file path (or http path) pipeline:  
-    /home/Dropbox/Business/Chalaki/Clients/SoftForce/workspace/NodeApps2/NodeApps  
+    ./workspace/NodeApps2/NodeApps  
 ### re-run lambda server from jenkins container manually:  
-    node /home/Dropbox/Business/Chalaki/Clients/SoftForce/workspace/NodeApps2/NodeApps/lambda_server.js  
+    node ./lambda_server.js  
 
 ## VS Code launch for local dev with docker env
 Start-Process  -NoNewWindow   "C:\Users\Raja\AppData\Local\Programs\Microsoft VS Code\Code.exe"

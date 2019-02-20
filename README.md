@@ -6,7 +6,11 @@ kubectl apply -f pv_redis.yaml #pv and pvc
 kubectl apply -f deploy_redis.yaml  
 kubectl apply -f service_redis.yaml  
 
-## node.js
+## node.js lambserver deployment
+kubectl create -f .\k8s\create_serviceaccount.yml
+kubectl create -f .\k8s\create_servicerole_binding.yml
+### Create lambserver docker image and push
+
 ### web interface (node express)
 
 |main code          |ejs views          |

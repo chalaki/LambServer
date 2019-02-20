@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-vol1
+  name: redis-volume2
 spec:
   accessModes:
     - ReadWriteMany
   capacity:
-    storage: 100Mi
+    storage: 2Gi
   hostPath:
-    path: /temp/data
+    path: /tmp
 ---
-apiVersion: v1
 kind: PersistentVolumeClaim
+apiVersion: v1
 metadata:
   name: redis-volumeclaim
 spec:
@@ -19,4 +19,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 100Mi
+      storage: 2Gi
+  selector:
+    matchLabels:
+      name: redis-volume2
