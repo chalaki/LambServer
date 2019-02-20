@@ -5,7 +5,7 @@ var logger = console;
 var verbose = false;
 var postgres_dns = '104.154.26.17'; //'35.226.248.125';
 var postgres_port = 5432; //30432;
-var conString = 'postgresql://postgres:SfApps123@' + postgres_dns + ':' + postgres_port.toString() + '/postgres';  // docker
+var conString = 'postgresql://postgres:postgres123@' + postgres_dns + ':' + postgres_port.toString() + '/postgres';  // docker
 const { Client } = require('pg');
 var client;
 

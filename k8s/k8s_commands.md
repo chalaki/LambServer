@@ -55,7 +55,7 @@ kubectl edit pod podname # gets and edits the yaml in vi. On save it wil be appl
     kubectl expose deployment postgres --type=LoadBalancer --port=5432  # create service cmdline
     kubectl apply -f service_postgres.yml   # create service from manifest in yml
     kubectl get pvc  # get persistant volume claims
-    kubectl create secret generic dbpass --from-literal=password=SfApps123
+    kubectl create secret generic dbpass --from-literal=password=postgres123
     kubectl get pod -l app=mysql  # get the pod name (to shell using cmd: kubectl exec -it podname sh)
     kubectl delete StatefulSet --all
     
@@ -63,7 +63,7 @@ kubectl edit pod podname # gets and edits the yaml in vi. On save it wil be appl
     kubectl delete deployment postgres  
     kubectl delete service postgres  
 ## create secret
-    kubectl create secret generic postgres-db-pass --from-literal=password=SfApps123
+    kubectl create secret generic postgres-db-pass --from-literal=password=postgres123
 ## create persistent volume claim
     kubectl apply -f pvc_pg.yaml    
 
@@ -80,7 +80,7 @@ kubectl edit pod podname # gets and edits the yaml in vi. On save it wil be appl
 kubectl delete deployment redis  
 kubectl delete service redis  
 ### create secret
-    kubectl create secret generic redis-password --from-literal=password=SfApps123
+    kubectl create secret generic redis-password --from-literal=password=postgres123
 ### create pvc
     kubectl apply -f pvc_redis.yaml   
 ### create deployment and service using manifest yml files: (The range of valid ports is 30000-32767)   

@@ -223,8 +223,8 @@ func f(response http.ResponseWriter, request *http.Request) {
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisDNS + ":" + redisPort,
-		Password: "SfApps123", // no password set
-		DB:       0,           // use default DB
+		Password: "postgres123", // no password set
+		DB:       0,             // use default DB
 	})
 
 	//redis_client.get(redisKey, function (error, result) {
