@@ -4,7 +4,7 @@ REM export PATH=$PATH:'/mnt/c/Program Files (x86)/Kubernetes/Minikube/:/mnt/c/Pr
 REM minikube.exe docker-env | Invoke-Expression
 REM create deployment node from nodedeploy.yaml
 kubectl delete deployment node
-kubectl create -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\nodedeploy.yaml
+kubectl create -f .\NodeApps\k8s\nodedeploy.yaml
 
 REM create services
 REM kubectl expose deployment postgres --type=LoadBalancer --port=5432 # do it once

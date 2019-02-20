@@ -4,7 +4,7 @@
 # create deployment node from nodedeploy.yaml
 kubectl delete deployment node
 
-kubectl create -f C:\Users\Raja\Dropbox\Business\Chalaki\Clients\SoftForce\workspace\NodeApps2\NodeApps\k8s\nodedeploy.yaml
+kubectl create -f .\workspace\NodeApps2\NodeApps\k8s\nodedeploy.yaml
 
 #create services
 #kubectl expose deployment postgres --type=LoadBalancer --port=5432 # do it once
